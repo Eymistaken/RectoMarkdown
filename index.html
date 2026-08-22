@@ -1,0 +1,3307 @@
+<!doctype html>
+<html lang="tr" data-theme="system">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="Recto — profesyonel markdown görüntüleyici ve editör.">
+<title>Recto · Markdown</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital,wght@0,400;0,500;0,600;1,400&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&family=Newsreader:ital,opsz,wght@0,6..72,300;0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400&display=swap" rel="stylesheet">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%23b04a2a'/%3E%3Cpath d='M9 23V9h7.2c2.6 0 4.3 1.6 4.3 4 0 1.9-1 3.2-2.7 3.7L21.8 23h-3.3l-3.5-5.9h-2.6V23H9zm3.4-8.5h3.3c1.1 0 1.8-.6 1.8-1.6s-.7-1.6-1.8-1.6h-3.3v3.2z' fill='%23fff'/%3E%3C/svg%3E">
+<style>
+/* ============================================================
+   RECTO — editorial markdown workspace
+   Paper & ink. Hairlines, not shadows. One accent.
+   ============================================================ */
+
+*,*::before,*::after{box-sizing:border-box}
+html,body{height:100%}
+body{margin:0}
+button,input,select,textarea{font:inherit;color:inherit;background:none;border:0;margin:0}
+button{cursor:pointer}
+h1,h2,h3,h4,h5,h6,p,figure,blockquote,dl,dd{margin:0}
+ul[class],ol[class]{list-style:none;margin:0;padding:0}
+img,svg{display:block;max-width:100%}
+a{color:inherit}
+
+/* ---------- tokens : light (paper) ---------- */
+:root{
+  --f-ui:"IBM Plex Sans","Segoe UI",Helvetica,Arial,sans-serif;
+  --f-mono:"IBM Plex Mono","SFMono-Regular",Menlo,Consolas,"Liberation Mono",monospace;
+  --f-read:"Newsreader","Iowan Old Style","Palatino Linotype",Georgia,serif;
+
+  --paper:#f6f4ef;
+  --surface:#fdfcfa;
+  --surface-2:#efece5;
+  --surface-3:#e7e3da;
+  --ink:#1c1a17;
+  --ink-2:#3f3b35;
+  --ink-3:#6d675e;
+  --ink-4:#8f887d;
+  --line:#e2ddd3;
+  --line-2:#d2ccc0;
+  --accent:#b0492a;
+  --accent-ink:#8e3a21;
+  --accent-soft:rgba(176,73,42,.10);
+  --accent-line:rgba(176,73,42,.34);
+  --sel:rgba(176,73,42,.18);
+  --ok:#3f7a52;
+  --warn:#9a6a16;
+  --danger:#a8382c;
+  --info:#2c5f86;
+  --shadow-pop:0 1px 1px rgba(28,26,23,.05),0 8px 26px -8px rgba(28,26,23,.22);
+  --grain:.028;
+
+  /* syntax — light */
+  --c-com:#9b9287; --c-kw:#a03a63; --c-str:#3d7050; --c-num:#8a5418;
+  --c-fn:#2b5f8c;  --c-typ:#7a4a93; --c-var:#3f3b35; --c-op:#77706a;
+  --c-tag:#a03a63; --c-atr:#8a5418; --c-add:#3f7a52; --c-del:#a8382c;
+
+  --read-size:18.5px;
+  --measure:70ch;
+  --sb-w:264px;
+}
+:root[data-theme="dark"]{
+  --paper:#100f0e;
+  --surface:#181715;
+  --surface-2:#201e1b;
+  --surface-3:#292724;
+  --ink:#ece7df;
+  --ink-2:#c9c3b9;
+  --ink-3:#9a938a;
+  --ink-4:#7b746b;
+  --line:#2a2724;
+  --line-2:#3a3733;
+  --accent:#e07a4e;
+  --accent-ink:#f0966d;
+  --accent-soft:rgba(224,122,78,.13);
+  --accent-line:rgba(224,122,78,.36);
+  --sel:rgba(224,122,78,.22);
+  --ok:#7fbf94; --warn:#d9ad5c; --danger:#e58374; --info:#79aed6;
+  --shadow-pop:0 1px 1px rgba(0,0,0,.4),0 10px 30px -8px rgba(0,0,0,.6);
+  --grain:.05;
+  --c-com:#7a736a; --c-kw:#e88bb0; --c-str:#93c9a4; --c-num:#e0ad70;
+  --c-fn:#84b6df;  --c-typ:#c3a3e0; --c-var:#c9c3b9; --c-op:#8e867d;
+  --c-tag:#e88bb0; --c-atr:#e0ad70; --c-add:#7fbf94; --c-del:#e58374;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --paper:#100f0e;
+    --surface:#181715;
+    --surface-2:#201e1b;
+    --surface-3:#292724;
+    --ink:#ece7df;
+    --ink-2:#c9c3b9;
+    --ink-3:#9a938a;
+    --ink-4:#7b746b;
+    --line:#2a2724;
+    --line-2:#3a3733;
+    --accent:#e07a4e;
+    --accent-ink:#f0966d;
+    --accent-soft:rgba(224,122,78,.13);
+    --accent-line:rgba(224,122,78,.36);
+    --sel:rgba(224,122,78,.22);
+    --ok:#7fbf94; --warn:#d9ad5c; --danger:#e58374; --info:#79aed6;
+    --shadow-pop:0 1px 1px rgba(0,0,0,.4),0 10px 30px -8px rgba(0,0,0,.6);
+    --grain:.05;
+    --c-com:#7a736a; --c-kw:#e88bb0; --c-str:#93c9a4; --c-num:#e0ad70;
+    --c-fn:#84b6df;  --c-typ:#c3a3e0; --c-var:#c9c3b9; --c-op:#8e867d;
+    --c-tag:#e88bb0; --c-atr:#e0ad70; --c-add:#7fbf94; --c-del:#e58374;
+  }
+}
+
+/* ---------- base ---------- */
+body{
+  font-family:var(--f-ui);
+  font-size:14px;
+  color:var(--ink);
+  background:var(--paper);
+  -webkit-font-smoothing:antialiased;
+  -moz-osx-font-smoothing:grayscale;
+  text-rendering:optimizeLegibility;
+  overflow:hidden;
+}
+/* paper grain — the one texture in the whole app */
+body::before{
+  content:"";position:fixed;inset:0;z-index:9999;pointer-events:none;
+  opacity:var(--grain);
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)'/%3E%3C/svg%3E");
+  mix-blend-mode:multiply;
+}
+:root[data-theme="dark"] body::before{mix-blend-mode:screen}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) body::before{mix-blend-mode:screen}}
+
+::selection{background:var(--sel)}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:3px}
+
+::-webkit-scrollbar{width:11px;height:11px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--line-2);border:3px solid transparent;background-clip:content-box;border-radius:99px}
+::-webkit-scrollbar-thumb:hover{background:var(--ink-4);background-clip:content-box}
+*{scrollbar-width:thin;scrollbar-color:var(--line-2) transparent}
+
+.label{
+  font-family:var(--f-mono);font-size:10.5px;font-weight:500;
+  letter-spacing:.13em;text-transform:uppercase;color:var(--ink-4);
+}
+.mono{font-family:var(--f-mono);font-variant-numeric:tabular-nums}
+
+/* ---------- app shell ---------- */
+.app{
+  height:100dvh;display:grid;
+  grid-template-rows:auto 1fr auto;
+  overflow:hidden;
+}
+
+/* ---------- topbar ---------- */
+.topbar{
+  display:flex;align-items:center;gap:10px;
+  height:52px;padding:0 12px 0 10px;
+  background:var(--surface);
+  border-bottom:1px solid var(--line);
+  position:relative;z-index:40;
+}
+.topbar__left,.topbar__right{display:flex;align-items:center;gap:6px;flex:0 0 auto}
+.topbar__center{flex:1 1 auto;min-width:0;display:flex;justify-content:center}
+
+.brand{display:flex;align-items:center;gap:9px;padding-left:4px;user-select:none}
+.brand__mark{
+  width:26px;height:26px;border-radius:7px;flex:0 0 auto;
+  background:var(--accent);color:#fff;
+  display:grid;place-items:center;
+  font-family:var(--f-read);font-weight:600;font-size:16px;line-height:1;
+  letter-spacing:-.01em;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.25);
+}
+.brand__name{
+  font-family:var(--f-read);font-size:16.5px;font-weight:500;letter-spacing:.005em;
+  color:var(--ink);
+}
+.brand__name span{color:var(--ink-4);font-style:italic;font-weight:400}
+@media (max-width:900px){.brand__name{display:none}}
+
+.docmeta{display:flex;align-items:center;gap:8px;min-width:0;max-width:min(420px,42vw)}
+.docmeta__title{
+  min-width:40px;width:100%;text-align:center;
+  font-family:var(--f-read);font-size:15px;font-weight:500;color:var(--ink-2);
+  padding:4px 10px;border-radius:6px;
+  border:1px solid transparent;
+  text-overflow:ellipsis;
+  transition:border-color .15s,background .15s;
+}
+.docmeta__title:hover{border-color:var(--line)}
+.docmeta__title:focus{outline:none;border-color:var(--accent-line);background:var(--surface-2);text-align:left}
+.docmeta__state{
+  flex:0 0 auto;font-family:var(--f-mono);font-size:10px;letter-spacing:.1em;
+  text-transform:uppercase;color:var(--ink-4);
+  opacity:0;transition:opacity .25s;white-space:nowrap;
+}
+.docmeta__state.is-on{opacity:1}
+@media (max-width:640px){.docmeta__state{display:none}}
+
+/* icon button */
+.ibtn{
+  width:32px;height:32px;flex:0 0 auto;border-radius:8px;
+  display:grid;place-items:center;color:var(--ink-3);
+  transition:background .13s,color .13s;
+  position:relative;
+}
+.ibtn:hover{background:var(--surface-2);color:var(--ink)}
+.ibtn:active{background:var(--surface-3)}
+.ibtn.is-active{background:var(--accent-soft);color:var(--accent)}
+.ibtn svg{width:17px;height:17px}
+.ibtn[data-badge]::after{
+  content:"";position:absolute;top:6px;right:6px;width:5px;height:5px;
+  border-radius:99px;background:var(--accent);
+}
+.vr{width:1px;height:20px;background:var(--line);margin:0 4px;flex:0 0 auto}
+
+/* segmented control */
+.seg{
+  position:relative;display:flex;padding:3px;gap:0;
+  background:var(--surface-2);border:1px solid var(--line);border-radius:9px;
+  --seg:0;
+}
+.seg__thumb{
+  position:absolute;top:3px;bottom:3px;left:3px;width:calc((100% - 6px)/3);
+  background:var(--surface);border:1px solid var(--line-2);border-radius:6px;
+  transform:translateX(calc(var(--seg) * 100%));
+  transition:transform .28s cubic-bezier(.65,.05,.36,1);
+  box-shadow:0 1px 2px rgba(28,26,23,.06);
+}
+.seg button{
+  position:relative;z-index:1;flex:1 0 auto;min-width:66px;height:24px;
+  font-family:var(--f-mono);font-size:10.5px;font-weight:500;letter-spacing:.09em;
+  text-transform:uppercase;color:var(--ink-4);border-radius:6px;
+  transition:color .18s;white-space:nowrap;
+}
+.seg button[aria-selected="true"]{color:var(--ink)}
+@media (max-width:760px){.seg button{min-width:40px}.seg button span{display:none}}
+
+/* ---------- body ---------- */
+.shell{display:flex;min-height:0;overflow:hidden;position:relative}
+
+/* ---------- sidebar ---------- */
+.sidebar{
+  width:var(--sb-w);flex:0 0 var(--sb-w);
+  display:flex;flex-direction:column;min-height:0;
+  background:var(--surface);
+  border-right:1px solid var(--line);
+  transition:margin-left .3s cubic-bezier(.65,.05,.36,1),opacity .2s;
+}
+.app[data-sidebar="off"] .sidebar{margin-left:calc(-1 * var(--sb-w));opacity:0;pointer-events:none}
+.sidebar__tabs{
+  display:flex;gap:2px;padding:10px 10px 8px;border-bottom:1px solid var(--line);
+}
+.tab{
+  flex:1;height:26px;border-radius:6px;
+  font-family:var(--f-mono);font-size:10.5px;font-weight:500;letter-spacing:.1em;
+  text-transform:uppercase;color:var(--ink-4);
+  transition:background .13s,color .13s;
+}
+.tab:hover{color:var(--ink-2);background:var(--surface-2)}
+.tab[aria-selected="true"]{background:var(--accent-soft);color:var(--accent)}
+.sidebar__body{flex:1;min-height:0;overflow-y:auto;overscroll-behavior:contain}
+.panel{display:none;padding:10px 8px 24px}
+.panel.is-on{display:block}
+.panel__empty{
+  padding:28px 16px;text-align:center;color:var(--ink-4);
+  font-size:12.5px;line-height:1.6;
+}
+.panel__empty svg{width:22px;height:22px;margin:0 auto 10px;opacity:.5}
+
+/* outline */
+.toc{display:flex;flex-direction:column;gap:1px}
+.toc a{
+  display:block;text-decoration:none;position:relative;
+  padding:5px 10px 5px 14px;border-radius:6px;
+  font-size:12.5px;line-height:1.45;color:var(--ink-3);
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+  transition:background .12s,color .12s;
+}
+.toc a::before{
+  content:"";position:absolute;left:4px;top:50%;transform:translateY(-50%);
+  width:2px;height:0;border-radius:2px;background:var(--accent);
+  transition:height .2s cubic-bezier(.65,.05,.36,1);
+}
+.toc a:hover{background:var(--surface-2);color:var(--ink)}
+.toc a.is-active{color:var(--accent);background:var(--accent-soft);font-weight:500}
+.toc a.is-active::before{height:14px}
+.toc a[data-l="1"]{font-family:var(--f-read);font-size:13.5px;font-weight:500;color:var(--ink-2)}
+.toc a[data-l="2"]{padding-left:14px}
+.toc a[data-l="3"]{padding-left:26px;font-size:12px}
+.toc a[data-l="4"]{padding-left:38px;font-size:12px;color:var(--ink-4)}
+.toc a[data-l="5"],.toc a[data-l="6"]{padding-left:50px;font-size:11.5px;color:var(--ink-4)}
+
+/* documents */
+.doclist{display:flex;flex-direction:column;gap:2px}
+.doc{
+  position:relative;display:flex;align-items:center;gap:9px;
+  padding:8px 8px 8px 10px;border-radius:7px;cursor:pointer;
+  transition:background .12s;
+}
+.doc:hover{background:var(--surface-2)}
+.doc.is-active{background:var(--accent-soft)}
+.doc.is-active .doc__name{color:var(--accent);font-weight:500}
+.doc__dot{
+  width:6px;height:6px;border-radius:99px;flex:0 0 auto;
+  background:var(--line-2);
+}
+.doc.is-active .doc__dot{background:var(--accent)}
+.doc__main{min-width:0;flex:1}
+.doc__name{
+  font-size:12.5px;color:var(--ink-2);
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+}
+.doc__meta{font-family:var(--f-mono);font-size:10px;color:var(--ink-4);margin-top:2px}
+.doc__del{
+  width:22px;height:22px;border-radius:5px;flex:0 0 auto;
+  display:grid;place-items:center;color:var(--ink-4);
+  opacity:0;transition:opacity .13s,color .13s,background .13s;
+}
+.doc:hover .doc__del{opacity:1}
+.doc__del:hover{background:var(--surface-3);color:var(--danger)}
+.doc__del svg{width:13px;height:13px}
+.panel__head{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:4px 8px 10px;
+}
+.ghost{
+  display:inline-flex;align-items:center;gap:6px;height:26px;padding:0 9px;
+  border-radius:6px;border:1px solid var(--line);color:var(--ink-3);
+  font-family:var(--f-mono);font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;
+  transition:border-color .13s,color .13s,background .13s;
+}
+.ghost:hover{border-color:var(--line-2);color:var(--ink);background:var(--surface-2)}
+.ghost svg{width:13px;height:13px}
+
+/* sidebar footer */
+.sidebar__foot{
+  border-top:1px solid var(--line);padding:12px 14px;
+  display:grid;grid-template-columns:1fr 1fr;gap:10px 8px;
+}
+.stat__k{font-family:var(--f-mono);font-size:9.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-4)}
+.stat__v{font-family:var(--f-read);font-size:17px;font-weight:500;color:var(--ink-2);margin-top:1px;font-variant-numeric:tabular-nums}
+
+/* ---------- workspace ---------- */
+.work{flex:1;min-width:0;display:flex;position:relative;background:var(--paper)}
+.pane{display:flex;flex-direction:column;min-width:0;min-height:0;position:relative}
+.pane--edit{flex:0 0 var(--split,50%);background:var(--surface)}
+.pane--view{flex:1 1 auto}
+.app[data-mode="edit"] .pane--edit{flex:1 1 auto}
+.app[data-mode="edit"] .pane--view,
+.app[data-mode="edit"] .gutter{display:none}
+.app[data-mode="read"] .pane--edit,
+.app[data-mode="read"] .gutter{display:none}
+
+/* splitter */
+.gutter{
+  flex:0 0 1px;background:var(--line);position:relative;cursor:col-resize;
+  transition:background .15s;
+}
+.gutter::after{content:"";position:absolute;inset:0 -4px;z-index:5}
+.gutter::before{
+  content:"";position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
+  width:3px;height:34px;border-radius:99px;background:var(--line-2);
+  opacity:0;transition:opacity .15s;
+}
+.gutter:hover,.gutter.is-drag{background:var(--accent-line)}
+.gutter:hover::before,.gutter.is-drag::before{opacity:1;background:var(--accent)}
+body.is-resizing{cursor:col-resize;user-select:none}
+body.is-resizing .pane{pointer-events:none}
+
+/* ---------- toolbar ---------- */
+.toolbar{
+  display:flex;align-items:center;gap:1px;flex:0 0 auto;
+  height:38px;padding:0 8px;
+  border-bottom:1px solid var(--line);
+  background:var(--surface);
+  overflow-x:auto;scrollbar-width:none;
+}
+.toolbar::-webkit-scrollbar{display:none}
+.tbtn{
+  width:28px;height:26px;border-radius:6px;flex:0 0 auto;
+  display:grid;place-items:center;color:var(--ink-3);
+  transition:background .12s,color .12s;
+}
+.tbtn:hover{background:var(--surface-2);color:var(--ink)}
+.tbtn:active{background:var(--surface-3);transform:translateY(.5px)}
+.tbtn svg{width:15px;height:15px}
+.tbtn.txt{width:auto;padding:0 8px;font-family:var(--f-mono);font-size:11px;font-weight:500}
+.toolbar .vr{margin:0 5px;height:16px}
+.toolbar__spacer{flex:1}
+.toolbar__hint{
+  font-family:var(--f-mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--ink-4);padding-right:4px;white-space:nowrap;
+}
+
+/* ---------- editor ---------- */
+.editor-wrap{flex:1;min-height:0;position:relative;display:flex}
+.editor{
+  flex:1;width:100%;resize:none;
+  padding:26px 28px 45vh 28px;
+  font-family:var(--f-mono);font-size:14px;line-height:1.75;
+  color:var(--ink-2);background:transparent;
+  border:0;outline:none;
+  tab-size:2;
+  caret-color:var(--accent);
+  overflow-y:auto;
+  white-space:pre-wrap;word-wrap:break-word;
+}
+.editor::placeholder{color:var(--ink-4)}
+.editor::selection{background:var(--sel)}
+
+/* ---------- preview ---------- */
+.view-scroll{
+  flex:1;min-height:0;overflow-y:auto;overscroll-behavior:contain;
+  position:relative;scroll-behavior:smooth;
+}
+.progress{
+  position:absolute;top:0;left:0;height:2px;width:0;z-index:20;
+  background:linear-gradient(90deg,var(--accent-line),var(--accent));
+  transition:width .12s linear;pointer-events:none;
+}
+.app[data-mode="split"] .progress{display:none}
+
+/* ---------- statusbar ---------- */
+.statusbar{
+  display:flex;align-items:center;gap:14px;
+  height:28px;padding:0 12px;
+  background:var(--surface);border-top:1px solid var(--line);
+  font-family:var(--f-mono);font-size:10.5px;letter-spacing:.04em;
+  color:var(--ink-4);white-space:nowrap;overflow:hidden;
+}
+.statusbar b{font-weight:500;color:var(--ink-3);font-variant-numeric:tabular-nums}
+.statusbar__spacer{flex:1}
+.sb-sep{width:1px;height:12px;background:var(--line)}
+.sb-toggle{
+  display:inline-flex;align-items:center;gap:6px;height:20px;padding:0 7px;border-radius:5px;
+  color:var(--ink-4);letter-spacing:.09em;text-transform:uppercase;font-size:9.5px;
+  transition:background .12s,color .12s;
+}
+.sb-toggle:hover{background:var(--surface-2);color:var(--ink-2)}
+.sb-toggle.is-on{color:var(--accent)}
+.sb-toggle i{
+  width:6px;height:6px;border-radius:99px;background:var(--line-2);
+  transition:background .15s,box-shadow .15s;
+}
+.sb-toggle.is-on i{background:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
+@media (max-width:800px){.sb-hide{display:none}}
+
+/* ---------- popover menu ---------- */
+.pop-wrap{position:relative}
+.pop{
+  position:absolute;top:calc(100% + 8px);right:0;z-index:60;
+  min-width:274px;padding:6px;
+  background:var(--surface);border:1px solid var(--line-2);border-radius:11px;
+  box-shadow:var(--shadow-pop);
+  opacity:0;transform:translateY(-6px) scale(.985);pointer-events:none;
+  transition:opacity .16s,transform .16s;
+}
+.pop.is-open{opacity:1;transform:none;pointer-events:auto}
+.pop__label{padding:9px 10px 5px}
+.pop__sep{height:1px;background:var(--line);margin:5px 4px}
+.mi{
+  display:flex;align-items:center;gap:10px;width:100%;
+  padding:7px 10px;border-radius:7px;text-align:left;
+  font-size:13px;color:var(--ink-2);
+  transition:background .1s,color .1s;
+}
+.mi:hover{background:var(--surface-2);color:var(--ink)}
+.mi svg{width:15px;height:15px;flex:0 0 auto;color:var(--ink-4)}
+.mi:hover svg{color:var(--accent)}
+.mi kbd{margin-left:auto}
+.mi--danger:hover{color:var(--danger)}
+.mi--danger:hover svg{color:var(--danger)}
+kbd{
+  font-family:var(--f-mono);font-size:10px;color:var(--ink-4);
+  border:1px solid var(--line);border-radius:4px;
+  padding:1px 5px;background:var(--surface-2);white-space:nowrap;
+}
+
+/* option rows in settings pop */
+.opt{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:7px 10px}
+.opt__k{font-size:12.5px;color:var(--ink-2)}
+.chips{display:flex;gap:2px;padding:2px;background:var(--surface-2);border-radius:7px;border:1px solid var(--line)}
+.chip{
+  padding:3px 8px;border-radius:5px;
+  font-family:var(--f-mono);font-size:10px;letter-spacing:.06em;text-transform:uppercase;
+  color:var(--ink-4);transition:background .12s,color .12s;
+}
+.chip:hover{color:var(--ink-2)}
+.chip[aria-pressed="true"]{background:var(--surface);color:var(--accent);box-shadow:0 1px 2px rgba(0,0,0,.06)}
+.switch{
+  width:34px;height:19px;border-radius:99px;background:var(--surface-3);
+  border:1px solid var(--line-2);position:relative;transition:background .18s,border-color .18s;flex:0 0 auto;
+}
+.switch::after{
+  content:"";position:absolute;top:2px;left:2px;width:13px;height:13px;border-radius:99px;
+  background:var(--surface);box-shadow:0 1px 2px rgba(0,0,0,.2);
+  transition:transform .2s cubic-bezier(.65,.05,.36,1);
+}
+.switch[aria-pressed="true"]{background:var(--accent);border-color:var(--accent)}
+.switch[aria-pressed="true"]::after{transform:translateX(15px);background:#fff}
+
+/* ---------- find bar ---------- */
+.find{
+  position:absolute;top:10px;right:18px;z-index:30;
+  display:flex;align-items:center;gap:6px;padding:5px 6px 5px 10px;
+  background:var(--surface);border:1px solid var(--line-2);border-radius:10px;
+  box-shadow:var(--shadow-pop);
+  opacity:0;transform:translateY(-8px);pointer-events:none;
+  transition:opacity .16s,transform .16s;
+}
+.find.is-open{opacity:1;transform:none;pointer-events:auto}
+.find input{
+  width:180px;font-size:13px;color:var(--ink);
+  padding:2px 0;
+}
+.find input::placeholder{color:var(--ink-4)}
+.find__count{
+  font-family:var(--f-mono);font-size:10.5px;color:var(--ink-4);
+  min-width:52px;text-align:right;font-variant-numeric:tabular-nums;
+}
+.find .tbtn{width:24px;height:24px}
+.find .tbtn svg{width:13px;height:13px}
+
+/* ---------- overlays ---------- */
+.scrim{
+  position:fixed;inset:0;z-index:100;background:rgba(20,18,16,.42);
+  backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px);
+  display:grid;place-items:center;padding:24px;
+  opacity:0;pointer-events:none;transition:opacity .2s;
+}
+.scrim.is-open{opacity:1;pointer-events:auto}
+.sheet{
+  width:min(660px,100%);max-height:min(80vh,760px);overflow:auto;
+  background:var(--surface);border:1px solid var(--line-2);border-radius:14px;
+  box-shadow:0 30px 70px -20px rgba(0,0,0,.5);
+  transform:translateY(10px) scale(.99);transition:transform .22s cubic-bezier(.65,.05,.36,1);
+}
+.scrim.is-open .sheet{transform:none}
+.sheet__head{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:18px 20px 14px;border-bottom:1px solid var(--line);position:sticky;top:0;background:var(--surface);
+}
+.sheet__title{font-family:var(--f-read);font-size:20px;font-weight:500}
+.sheet__body{padding:18px 20px 22px}
+.keys{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:2px 26px}
+.keys__grp{grid-column:1/-1;padding:16px 0 6px}
+.keys__grp:first-child{padding-top:0}
+.key-row{
+  display:flex;align-items:center;justify-content:space-between;gap:14px;
+  padding:6px 0;border-bottom:1px dashed var(--line);font-size:12.5px;color:var(--ink-2);
+}
+.key-row span{display:flex;gap:3px}
+
+/* drop overlay */
+.drop{
+  position:fixed;inset:0;z-index:200;display:grid;place-items:center;
+  background:color-mix(in srgb,var(--paper) 88%,transparent);
+  opacity:0;pointer-events:none;transition:opacity .18s;
+}
+.drop.is-on{opacity:1;pointer-events:auto}
+.drop__box{
+  padding:40px 56px;border:1.5px dashed var(--accent-line);border-radius:16px;
+  text-align:center;background:var(--surface);box-shadow:var(--shadow-pop);
+}
+.drop__box svg{width:30px;height:30px;margin:0 auto 14px;color:var(--accent)}
+.drop__box p{font-family:var(--f-read);font-size:19px;color:var(--ink)}
+.drop__box small{display:block;margin-top:6px;color:var(--ink-4);font-size:12px}
+
+/* toast */
+.toast{
+  position:fixed;bottom:44px;left:50%;transform:translate(-50%,14px);z-index:300;
+  display:flex;align-items:center;gap:9px;
+  padding:9px 15px;border-radius:99px;
+  background:var(--ink);color:var(--paper);
+  font-size:12.5px;letter-spacing:.01em;
+  box-shadow:0 12px 30px -10px rgba(0,0,0,.55);
+  opacity:0;pointer-events:none;transition:opacity .2s,transform .2s;
+}
+.toast.is-on{opacity:1;transform:translate(-50%,0)}
+.toast svg{width:14px;height:14px;color:var(--accent-ink)}
+:root[data-theme="dark"] .toast svg{color:var(--accent)}
+
+/* mobile */
+@media (max-width:820px){
+  :root{--sb-w:262px}
+  .topbar{gap:2px;padding:0 6px 0 4px}
+  .topbar__right{gap:2px}
+  .sidebar{position:absolute;left:0;top:0;bottom:0;z-index:50;box-shadow:var(--shadow-pop)}
+  .app[data-sidebar="off"] .sidebar{margin-left:calc(-1 * var(--sb-w) - 8px)}
+  .app[data-mode="split"] .pane--edit{display:none}
+  .app[data-mode="split"] .gutter{display:none}
+  .shell::before{
+    content:"";position:absolute;inset:0;z-index:45;
+    background:rgba(18,16,14,.45);
+    opacity:0;pointer-events:none;transition:opacity .25s;
+  }
+  .app[data-sidebar="on"] .shell::before{opacity:1;pointer-events:auto}
+  .pop{max-width:calc(100vw - 20px)}
+}
+@media (max-width:720px){
+  .topbar__center{display:none}
+  .vr{margin:0 2px}
+}
+
+/* ============================================================
+   THE PAGE — rendered markdown
+   ============================================================ */
+.md{
+  font-family:var(--f-read);
+  font-size:var(--read-size);
+  line-height:1.68;
+  color:var(--ink-2);
+  max-width:var(--measure);
+  margin:0 auto;
+  padding:64px 40px 50vh;
+  font-variant-numeric:oldstyle-nums proportional-nums;
+  hanging-punctuation:first last;
+}
+.md[data-face="sans"]{font-family:var(--f-ui);font-size:calc(var(--read-size) - 1.5px);line-height:1.7;font-variant-numeric:normal}
+@media (max-width:640px){.md{padding:36px 22px 40vh}}
+
+.md > :first-child{margin-top:0}
+.md p{margin:0 0 1.05em}
+.md > p:last-child{margin-bottom:0}
+
+/* headings */
+.md h1,.md h2,.md h3,.md h4,.md h5,.md h6{
+  font-family:var(--f-read);font-weight:500;color:var(--ink);
+  line-height:1.2;letter-spacing:-.012em;
+  position:relative;scroll-margin-top:24px;
+}
+.md[data-face="sans"] h1,.md[data-face="sans"] h2,.md[data-face="sans"] h3,
+.md[data-face="sans"] h4,.md[data-face="sans"] h5,.md[data-face="sans"] h6{font-family:var(--f-ui);font-weight:600;letter-spacing:-.02em}
+.md h1{font-size:2.15em;margin:0 0 .1em;letter-spacing:-.025em;font-weight:600}
+.md h1 + p{color:var(--ink-3)}
+.md h2{
+  font-size:1.55em;margin:2.1em 0 .55em;padding-bottom:.28em;
+  border-bottom:1px solid var(--line);
+}
+.md h3{font-size:1.24em;margin:1.9em 0 .5em}
+.md h4{font-size:1.06em;margin:1.7em 0 .45em;font-weight:600}
+.md h5{
+  font-family:var(--f-mono);font-size:.76em;font-weight:600;letter-spacing:.11em;
+  text-transform:uppercase;color:var(--ink-3);margin:1.7em 0 .5em;
+}
+.md h6{
+  font-family:var(--f-mono);font-size:.72em;font-weight:500;letter-spacing:.11em;
+  text-transform:uppercase;color:var(--ink-4);margin:1.6em 0 .45em;
+}
+.md .anchor::after{content:"#"}
+.md .anchor{
+  position:absolute;left:-.85em;top:0;width:.85em;
+  color:var(--accent);text-decoration:none;opacity:0;
+  font-family:var(--f-mono);font-weight:400;font-size:.72em;line-height:inherit;
+  transition:opacity .15s;
+}
+.md h1:hover .anchor,.md h2:hover .anchor,.md h3:hover .anchor,
+.md h4:hover .anchor,.md h5:hover .anchor,.md h6:hover .anchor{opacity:.65}
+.md .anchor:hover{opacity:1 !important}
+@media (max-width:900px){.md .anchor{display:none}}
+
+/* inline */
+.md a{
+  color:var(--accent-ink);text-decoration:none;
+  border-bottom:1px solid var(--accent-line);
+  transition:border-color .15s,background .15s;
+}
+:root[data-theme="dark"] .md a{color:var(--accent-ink)}
+.md a:hover{border-bottom-color:var(--accent);background:var(--accent-soft)}
+.md strong{font-weight:600;color:var(--ink)}
+.md em{font-style:italic}
+.md del{color:var(--ink-4);text-decoration-thickness:1px}
+.md mark{background:color-mix(in srgb,var(--warn) 26%,transparent);color:inherit;padding:.05em .18em;border-radius:2px}
+.md abbr{text-decoration:underline dotted;cursor:help}
+.md sup,.md sub{font-size:.72em;line-height:0}
+.md kbd{
+  font-size:.78em;padding:.15em .4em;border-radius:4px;
+  border:1px solid var(--line-2);border-bottom-width:2px;
+  background:var(--surface-2);color:var(--ink-2);
+}
+/* code */
+.md :not(pre) > code{
+  font-family:var(--f-mono);font-size:.845em;
+  padding:.14em .38em;border-radius:4px;
+  background:var(--surface-2);border:1px solid var(--line);
+  color:var(--accent-ink);
+  word-break:break-word;
+}
+:root[data-theme="dark"] .md :not(pre) > code{color:var(--accent)}
+
+/* blockquote */
+.md blockquote{
+  margin:1.5em 0;padding:.15em 0 .15em 1.35em;
+  border-left:2px solid var(--accent-line);
+  color:var(--ink-3);font-style:italic;
+}
+.md blockquote p{margin-bottom:.7em}
+.md blockquote > :last-child{margin-bottom:0}
+.md blockquote cite,.md blockquote footer{
+  display:block;font-style:normal;font-family:var(--f-mono);
+  font-size:.7em;letter-spacing:.09em;text-transform:uppercase;color:var(--ink-4);margin-top:.5em;
+}
+.md blockquote blockquote{margin:.8em 0}
+
+/* callouts */
+.md .callout{
+  margin:1.5em 0;padding:14px 18px;border-radius:9px;
+  border:1px solid var(--line);border-left:2.5px solid var(--cl,var(--ink-4));
+  background:var(--surface-2);font-style:normal;color:var(--ink-2);
+  font-size:.94em;line-height:1.62;
+}
+.md .callout > :last-child{margin-bottom:0}
+.md .callout__t{
+  display:flex;align-items:center;gap:8px;margin-bottom:.5em;
+  font-family:var(--f-mono);font-size:.72em;font-weight:600;letter-spacing:.11em;
+  text-transform:uppercase;color:var(--cl,var(--ink-3));
+}
+.md .callout__t svg{width:14px;height:14px;flex:0 0 auto}
+.md .callout--note{--cl:var(--info)}
+.md .callout--tip{--cl:var(--ok)}
+.md .callout--important{--cl:var(--accent)}
+.md .callout--warning{--cl:var(--warn)}
+.md .callout--caution{--cl:var(--danger)}
+
+/* lists */
+.md ul,.md ol{margin:0 0 1.05em;padding-left:1.45em}
+.md li{margin:.28em 0}
+.md li > ul,.md li > ol{margin:.3em 0 .35em}
+.md ul{list-style:none;padding-left:1.3em}
+.md ul > li{position:relative}
+.md ul > li::before{
+  content:"";position:absolute;left:-1.05em;top:.72em;
+  width:5px;height:1.5px;background:var(--accent-line);border-radius:2px;
+}
+.md ul ul > li::before{width:4px;height:4px;border-radius:99px;background:transparent;border:1.2px solid var(--line-2);top:.6em}
+.md ol{list-style:none;counter-reset:ol;padding-left:1.7em}
+.md ol > li{position:relative;counter-increment:ol}
+.md ol > li::before{
+  content:counter(ol) ".";position:absolute;left:-1.7em;top:0;width:1.45em;
+  text-align:right;font-family:var(--f-mono);font-size:.78em;line-height:1.95;
+  color:var(--ink-4);font-variant-numeric:tabular-nums;
+}
+.md li.task{list-style:none;padding-left:1.6em}
+.md li.task::before{display:none}
+.md li.task > input[type="checkbox"]{
+  position:absolute;left:0;top:.36em;
+  appearance:none;-webkit-appearance:none;
+  width:15px;height:15px;border-radius:4px;
+  border:1.4px solid var(--line-2);background:var(--surface);
+  cursor:pointer;transition:background .15s,border-color .15s;
+}
+.md li.task > input:hover{border-color:var(--accent)}
+.md li.task > input:checked{background:var(--accent);border-color:var(--accent)}
+.md li.task > input:checked::after{
+  content:"";position:absolute;left:4px;top:1px;width:4px;height:8px;
+  border:solid #fff;border-width:0 1.8px 1.8px 0;transform:rotate(42deg);
+}
+.md li.task.done{color:var(--ink-4)}
+.md li.task.done > *:not(input){text-decoration:line-through;text-decoration-color:var(--line-2)}
+
+/* definition list */
+.md dl{margin:1.3em 0}
+.md dt{
+  font-family:var(--f-mono);font-size:.8em;font-weight:600;letter-spacing:.06em;
+  color:var(--ink);margin-top:1em;
+}
+.md dd{margin:.15em 0 0;padding-left:1.1em;border-left:1px solid var(--line);color:var(--ink-3)}
+
+/* rule — an ornament, not a line */
+.md hr{
+  border:0;margin:2.6em 0;height:1px;background:var(--line);
+  position:relative;overflow:visible;
+}
+.md hr::after{
+  content:"❦";position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);
+  background:var(--paper);padding:0 14px;
+  color:var(--ink-4);font-size:13px;line-height:1;
+}
+
+/* figures / images */
+.md img{margin:0 auto;border-radius:6px;border:1px solid var(--line)}
+.md p > img{margin:.4em auto}
+.md figure{margin:1.8em 0}
+.md figcaption{
+  margin-top:.7em;text-align:center;font-size:.8em;color:var(--ink-4);font-style:italic;
+}
+
+/* tables */
+.md .table-wrap{
+  margin:1.6em 0;overflow-x:auto;
+  border:1px solid var(--line);border-radius:9px;background:var(--surface);
+}
+.md table{border-collapse:collapse;width:100%;font-size:.87em;font-family:var(--f-ui);font-variant-numeric:tabular-nums}
+.md thead th{
+  font-family:var(--f-mono);font-size:.8em;font-weight:600;letter-spacing:.09em;
+  text-transform:uppercase;color:var(--ink-3);
+  background:var(--surface-2);
+  padding:9px 14px;text-align:left;white-space:nowrap;
+  border-bottom:1px solid var(--line-2);
+}
+.md tbody td{padding:9px 14px;border-bottom:1px solid var(--line);color:var(--ink-2);vertical-align:top}
+.md tbody tr:last-child td{border-bottom:0}
+.md tbody tr{transition:background .1s}
+.md tbody tr:hover{background:var(--surface-2)}
+.md th[align="center"],.md td[align="center"]{text-align:center}
+.md th[align="right"],.md td[align="right"]{text-align:right}
+
+/* code blocks */
+.md .code{
+  margin:1.6em 0;border:1px solid var(--line);border-radius:9px;
+  background:var(--surface);overflow:hidden;
+}
+.md .code__bar{
+  display:flex;align-items:center;gap:10px;
+  padding:0 8px 0 14px;height:32px;
+  background:var(--surface-2);border-bottom:1px solid var(--line);
+}
+.md .code__lang{
+  font-family:var(--f-mono);font-size:9.5px;font-weight:500;letter-spacing:.13em;
+  text-transform:uppercase;color:var(--ink-4);
+}
+.md .code__copy{
+  margin-left:auto;display:flex;align-items:center;gap:5px;
+  height:22px;padding:0 8px;border-radius:5px;
+  font-family:var(--f-mono);font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--ink-4);transition:background .12s,color .12s;
+}
+.md .code__copy:hover{background:var(--surface-3);color:var(--ink-2)}
+.md .code__copy.ok{color:var(--ok)}
+.md .code__copy svg{width:12px;height:12px}
+.md pre{
+  margin:0;padding:14px 16px;overflow-x:auto;
+  font-family:var(--f-mono);font-size:13px;line-height:1.62;
+  color:var(--ink-2);
+  -webkit-font-smoothing:auto;
+  font-variant-ligatures:none;
+}
+.md pre code{font:inherit;background:none;border:0;padding:0;color:inherit;white-space:pre}
+
+/* syntax tokens */
+.t-com{color:var(--c-com);font-style:italic}
+.t-kw{color:var(--c-kw)}
+.t-str{color:var(--c-str)}
+.t-num{color:var(--c-num)}
+.t-fn{color:var(--c-fn)}
+.t-typ{color:var(--c-typ)}
+.t-var{color:var(--c-var)}
+.t-op{color:var(--c-op)}
+.t-tag{color:var(--c-tag)}
+.t-atr{color:var(--c-atr)}
+.t-pun{color:var(--ink-4)}
+.t-add{color:var(--c-add)}
+.t-del{color:var(--c-del)}
+.t-meta{color:var(--ink-4)}
+
+/* footnotes */
+.md .fnref{
+  font-family:var(--f-mono);font-size:.68em;vertical-align:super;line-height:0;
+  color:var(--accent);text-decoration:none;border:0;padding:0 .1em;
+}
+.md .fnref:hover{background:var(--accent-soft);border:0}
+.md .footnotes{
+  margin-top:3.5em;padding-top:1.4em;border-top:1px solid var(--line);
+  font-size:.87em;color:var(--ink-3);
+}
+.md .footnotes h2{
+  font-family:var(--f-mono);font-size:.82em;font-weight:600;letter-spacing:.12em;
+  text-transform:uppercase;color:var(--ink-4);border:0;margin:0 0 .8em;padding:0;
+}
+.md .footnotes ol{padding-left:1.7em}
+.md .footnotes li{margin:.5em 0}
+.md .fnback{font-family:var(--f-mono);font-size:.85em;text-decoration:none;border:0;margin-left:.35em}
+
+/* search hits */
+.md .hit{background:color-mix(in srgb,var(--warn) 30%,transparent);border-radius:2px;padding:0}
+.md .hit.cur{background:var(--accent);color:#fff;box-shadow:0 0 0 2px var(--accent)}
+
+/* empty state */
+.md .blank{text-align:center;padding:16vh 0;color:var(--ink-4)}
+.md .blank h1{font-size:1.5em;color:var(--ink-3);font-weight:400;font-style:italic;margin-bottom:.4em}
+.md .blank p{font-size:.85em;font-family:var(--f-ui)}
+
+/* ---------- print ---------- */
+/* PDF zemini seçenekleri — JS bu değerleri okuyup @page arka planına yazar */
+:root{--pg-paper:#ffffff;--pg-light:#f6f4ef;--pg-dark:#100f0e}
+
+/* Yazdırma öncesi ölçüm: kâğıttaki geometrinin ekrandaki birebir kopyası.
+   Değerler aşağıdaki @media print bloğuyla aynı kalmalı. */
+:root[data-measuring] .md{
+  font-size:12pt;line-height:1.68;
+  width:min(var(--measure),178mm);max-width:none;padding:0;
+}
+:root[data-measuring] .md[data-face="sans"]{font-size:11.4pt}
+:root[data-measuring] .md pre{font-size:.7em;white-space:pre-wrap;overflow-wrap:anywhere}
+:root[data-measuring] .md .code__lang{font-size:.51em}
+:root[data-measuring] .md .table-wrap{background:transparent;border:0}
+
+@media print{
+  @page{margin:20mm 16mm}
+
+  /* ekranda ne görünüyorsa kâğıtta da o: Chrome'un "arka plan grafikleri"
+     kutusuna bağımlı kalmayalım */
+  *,*::before,*::after{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+
+  /* kâğıt modu: açık palet, ama zemin saf beyaz (baskı için) */
+  :root:not([data-print]),:root[data-print="paper"]{
+    --paper:#fff;--surface:#fff;--surface-2:#f4f1ec;--surface-3:#eae5dd;
+  }
+
+  html,body{height:auto;overflow:visible;background:var(--paper);color:var(--ink)}
+
+  /* yazdırma genişliği <=820px kurallarını tetikler: mobil örtüleri de gizle */
+  body::before,.shell::before,
+  .topbar,.sidebar,.statusbar,.pane--edit,.gutter,.find,.progress,
+  .toast,.drop,.scrim,.md .code__copy,.md .anchor{display:none !important}
+
+  .app{height:auto;display:block;overflow:visible}
+  .shell,.work,.pane,.pane--view{display:block;overflow:visible;background:transparent;min-height:0}
+  .pane--view,.view-scroll,.md{display:block !important}
+  .view-scroll{overflow:visible;height:auto;position:static;scroll-behavior:auto}
+
+  /* ekrandaki dizgi korunur: ölçü, satır aralığı, başlık ölçeği, renkler.
+     yalnızca taban punto kâğıda göre ayarlanır — geri kalan em tabanlı. */
+  .md{
+    font-size:12pt;line-height:1.68;
+    max-width:var(--measure);margin:0 auto;padding:0;
+    color:var(--ink-2);
+  }
+  .md[data-face="sans"]{font-size:11.4pt}
+
+  /* ekranda kaydırılan kutular kâğıtta kırpılmamalı */
+  .md .code{overflow:visible}
+  /* sarmalayıcının zeminini/çerçevesini hücrelere taşı: tablo sayfa sonunda
+     bölündüğünde arkada boş bir renk şeridi kalmasın */
+  .md .table-wrap{overflow:visible;background:transparent;border:0;border-radius:0}
+  .md table{border:1px solid var(--line)}
+  .md thead th{background:var(--surface-2)}
+  .md tbody td{background:var(--surface)}
+  .md pre{overflow:visible;font-size:.7em;white-space:pre-wrap;overflow-wrap:anywhere}
+  .md pre code{white-space:pre-wrap}
+  .md .code__lang{font-size:.51em}
+  .md td,.md th{overflow-wrap:anywhere}
+
+  /* sayfalama — bir blok sayfaya sığıyorsa bütün kalır, sığmıyorsa
+     satır/satır bölünür (kararı planPageBreaks() veriyor) */
+  .md h1,.md h2,.md h3,.md h4,.md h5,.md h6,.md .code__bar,.md dt{break-after:avoid}
+  .md tr,.md img,.md .code__bar,.md li{break-inside:avoid}
+  .md blockquote,.md .callout,.md figure,.md .table-wrap,.md .code{break-inside:avoid}
+  .md thead{display:table-header-group}
+  .md p,.md li,.md dd,.md td,.md th{orphans:2;widows:2}
+}
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.01ms !important;transition-duration:.01ms !important}
+  .view-scroll{scroll-behavior:auto}
+}
+</style>
+</head>
+<body>
+<div class="app" id="app" data-mode="split" data-sidebar="on">
+
+  <!-- ============ TOPBAR ============ -->
+  <header class="topbar">
+    <div class="topbar__left">
+      <button class="ibtn" id="btnSidebar" data-ico="panel" title="Kenar çubuğu · Ctrl+\" aria-label="Kenar çubuğunu aç/kapat"></button>
+      <div class="brand">
+        <div class="brand__mark" aria-hidden="true">R</div>
+        <div class="brand__name">Recto<span>&thinsp;markdown</span></div>
+      </div>
+    </div>
+
+    <div class="topbar__center">
+      <div class="docmeta">
+        <input id="docTitle" class="docmeta__title" value="Başlıksız" spellcheck="false" autocomplete="off" aria-label="Belge adı">
+        <span class="docmeta__state" id="saveState">kaydedildi</span>
+      </div>
+    </div>
+
+    <div class="topbar__right">
+      <div class="seg" id="viewModes" role="tablist" aria-label="Görünüm">
+        <span class="seg__thumb" aria-hidden="true"></span>
+        <button role="tab" data-mode="edit" aria-selected="false">Yaz<span>&nbsp;</span></button>
+        <button role="tab" data-mode="split" aria-selected="true">İkili<span>&nbsp;</span></button>
+        <button role="tab" data-mode="read" aria-selected="false">Oku<span>&nbsp;</span></button>
+      </div>
+      <div class="vr"></div>
+      <button class="ibtn" id="btnFind" data-ico="search" title="Bul · Ctrl+F" aria-label="Bul"></button>
+      <button class="ibtn" id="btnTheme" data-ico="auto" title="Tema" aria-label="Tema değiştir"></button>
+
+      <div class="pop-wrap">
+        <button class="ibtn" id="btnType" data-ico="type" title="Tipografi" aria-label="Tipografi ayarları"></button>
+        <div class="pop" id="popType" role="menu">
+          <div class="pop__label label">Okuma</div>
+          <div class="opt">
+            <span class="opt__k">Yazı karakteri</span>
+            <div class="chips" id="optFace">
+              <button class="chip" data-v="serif" aria-pressed="true">Serif</button>
+              <button class="chip" data-v="sans" aria-pressed="false">Sans</button>
+            </div>
+          </div>
+          <div class="opt">
+            <span class="opt__k">Punto</span>
+            <div class="chips" id="optSize">
+              <button class="chip" data-v="16.5" aria-pressed="false">S</button>
+              <button class="chip" data-v="18.5" aria-pressed="true">M</button>
+              <button class="chip" data-v="20.5" aria-pressed="false">L</button>
+              <button class="chip" data-v="22.5" aria-pressed="false">XL</button>
+            </div>
+          </div>
+          <div class="opt">
+            <span class="opt__k">Satır genişliği</span>
+            <div class="chips" id="optMeasure">
+              <button class="chip" data-v="58ch" aria-pressed="false">Dar</button>
+              <button class="chip" data-v="70ch" aria-pressed="true">Orta</button>
+              <button class="chip" data-v="86ch" aria-pressed="false">Geniş</button>
+            </div>
+          </div>
+          <div class="pop__sep"></div>
+          <div class="pop__label label">Ayrıştırıcı</div>
+          <div class="opt">
+            <span class="opt__k">Akıllı tipografi</span>
+            <button class="switch" id="optSmart" aria-pressed="false" aria-label="Akıllı tipografi"></button>
+          </div>
+          <div class="opt">
+            <span class="opt__k">Satır sonu = &lt;br&gt;</span>
+            <button class="switch" id="optBreaks" aria-pressed="false" aria-label="Satır sonlarını koru"></button>
+          </div>
+        </div>
+      </div>
+
+      <div class="pop-wrap">
+        <button class="ibtn" id="btnMore" data-ico="more" title="Menü" aria-label="Daha fazla"></button>
+        <div class="pop" id="popMore" role="menu">
+          <div class="pop__label label">Belge</div>
+          <button class="mi" id="miNew" data-ico="plus">Yeni belge<kbd>Ctrl N</kbd></button>
+          <button class="mi" id="miOpen" data-ico="folder">Dosya aç…<kbd>Ctrl O</kbd></button>
+          <button class="mi" id="miSample" data-ico="book">Örnek belgeyi yükle</button>
+          <div class="pop__sep"></div>
+          <div class="pop__label label">Dışa aktar</div>
+          <button class="mi" id="miMd" data-ico="download">Markdown indir<kbd>Ctrl S</kbd></button>
+          <button class="mi" id="miHtml" data-ico="code">HTML olarak indir</button>
+          <button class="mi" id="miPrint" data-ico="print">Yazdır / PDF<kbd>Ctrl P</kbd></button>
+          <div class="opt">
+            <span class="opt__k">PDF zemini</span>
+            <div class="chips" id="optPrintBg">
+              <button class="chip" data-v="paper" aria-pressed="true" title="Beyaz zemin — kâğıda basmak için">Kâğıt</button>
+              <button class="chip" data-v="light" aria-pressed="false" title="Uygulamanın açık teması">Açık</button>
+              <button class="chip" data-v="dark" aria-pressed="false" title="Koyu zemin — ekrandan okumak için">Koyu</button>
+            </div>
+          </div>
+          <div class="pop__sep"></div>
+          <button class="mi" id="miCopyMd" data-ico="copy">Markdown&rsquo;ı kopyala</button>
+          <button class="mi" id="miCopyHtml" data-ico="copy">HTML&rsquo;i kopyala</button>
+          <div class="pop__sep"></div>
+          <button class="mi" id="miKeys" data-ico="keyboard">Klavye kısayolları<kbd>?</kbd></button>
+          <button class="mi mi--danger" id="miClear" data-ico="trash">Belgeyi boşalt</button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- ============ SHELL ============ -->
+  <div class="shell">
+    <!-- sidebar -->
+    <aside class="sidebar" id="sidebar" aria-label="Kenar çubuğu">
+      <div class="sidebar__tabs" role="tablist">
+        <button class="tab" role="tab" data-tab="toc" aria-selected="true">Anahat</button>
+        <button class="tab" role="tab" data-tab="docs" aria-selected="false">Belgeler</button>
+      </div>
+      <div class="sidebar__body">
+        <div class="panel is-on" id="panelToc">
+          <nav class="toc" id="toc" aria-label="İçindekiler"></nav>
+        </div>
+        <div class="panel" id="panelDocs">
+          <div class="panel__head">
+            <span class="label">Yerel arşiv</span>
+            <button class="ghost" id="btnNewDoc" data-ico="plus">Yeni</button>
+          </div>
+          <div class="doclist" id="docList"></div>
+        </div>
+      </div>
+      <div class="sidebar__foot">
+        <div><div class="stat__k">Kelime</div><div class="stat__v" id="stWords">0</div></div>
+        <div><div class="stat__k">Okuma</div><div class="stat__v" id="stTime">0 dk</div></div>
+      </div>
+    </aside>
+
+    <!-- workspace -->
+    <div class="work" id="work">
+      <section class="pane pane--edit" aria-label="Düzenleyici">
+        <div class="toolbar" id="toolbar">
+          <button class="tbtn" data-cmd="h" data-ico="heading" title="Başlık"></button>
+          <button class="tbtn" data-cmd="bold" data-ico="bold" title="Kalın · Ctrl+B"></button>
+          <button class="tbtn" data-cmd="italic" data-ico="italic" title="İtalik · Ctrl+I"></button>
+          <button class="tbtn" data-cmd="strike" data-ico="strike" title="Üstü çizili"></button>
+          <div class="vr"></div>
+          <button class="tbtn" data-cmd="link" data-ico="link" title="Bağlantı · Ctrl+K"></button>
+          <button class="tbtn" data-cmd="image" data-ico="image" title="Görsel"></button>
+          <button class="tbtn" data-cmd="code" data-ico="code" title="Satır içi kod · Ctrl+E"></button>
+          <button class="tbtn" data-cmd="fence" data-ico="terminal" title="Kod bloğu · Ctrl+Shift+K"></button>
+          <div class="vr"></div>
+          <button class="tbtn" data-cmd="quote" data-ico="quote" title="Alıntı"></button>
+          <button class="tbtn" data-cmd="ul" data-ico="listul" title="Madde listesi"></button>
+          <button class="tbtn" data-cmd="ol" data-ico="listol" title="Numaralı liste"></button>
+          <button class="tbtn" data-cmd="task" data-ico="check" title="Görev listesi"></button>
+          <div class="vr"></div>
+          <button class="tbtn" data-cmd="table" data-ico="table" title="Tablo"></button>
+          <button class="tbtn" data-cmd="hr" data-ico="minus" title="Ayraç"></button>
+          <div class="toolbar__spacer"></div>
+          <span class="toolbar__hint" id="cursorPos">1 : 1</span>
+        </div>
+        <div class="editor-wrap">
+          <textarea class="editor" id="editor" spellcheck="false" autocomplete="off"
+            autocorrect="off" autocapitalize="off" wrap="soft"
+            placeholder="# Yazmaya başla&#10;&#10;Markdown burada, sonuç sağda."></textarea>
+        </div>
+      </section>
+
+      <div class="gutter" id="gutter" role="separator" aria-orientation="vertical" tabindex="0" aria-label="Panel genişliği"></div>
+
+      <section class="pane pane--view" aria-label="Önizleme">
+        <div class="progress" id="progress"></div>
+        <div class="find" id="find">
+          <input type="text" id="findInput" placeholder="Belgede bul…" spellcheck="false" aria-label="Bul">
+          <span class="find__count" id="findCount">0/0</span>
+          <button class="tbtn" id="findPrev" data-ico="up" title="Önceki · Shift+Enter"></button>
+          <button class="tbtn" id="findNext" data-ico="down" title="Sonraki · Enter"></button>
+          <button class="tbtn" id="findClose" data-ico="x" title="Kapat · Esc"></button>
+        </div>
+        <div class="view-scroll" id="viewScroll">
+          <article class="md" id="preview" data-face="serif"></article>
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <!-- ============ STATUS ============ -->
+  <footer class="statusbar">
+    <span class="sb-hide"><b id="sbWords">0</b> kelime</span>
+    <span class="sb-sep sb-hide"></span>
+    <span class="sb-hide"><b id="sbChars">0</b> karakter</span>
+    <span class="sb-sep sb-hide"></span>
+    <span><b id="sbLines">1</b> satır</span>
+    <span class="sb-sep"></span>
+    <span class="sb-hide"><b id="sbHeads">0</b> başlık</span>
+    <span class="statusbar__spacer"></span>
+    <button class="sb-toggle is-on" id="btnSync"><i></i>Eşzamanlı kaydırma</button>
+    <span class="sb-sep"></span>
+    <span id="sbMode">İkili görünüm</span>
+  </footer>
+</div>
+
+<!-- ============ OVERLAYS ============ -->
+<div class="drop" id="drop">
+  <div class="drop__box">
+    <span data-ico="download"></span>
+    <p>Dosyayı bırak</p>
+    <small>.md · .markdown · .txt · .mdx</small>
+  </div>
+</div>
+
+<div class="scrim" id="keysModal">
+  <div class="sheet" role="dialog" aria-modal="true" aria-label="Klavye kısayolları">
+    <div class="sheet__head">
+      <div class="sheet__title">Klavye kısayolları</div>
+      <button class="ibtn" data-close data-ico="x" aria-label="Kapat"></button>
+    </div>
+    <div class="sheet__body"><div class="keys" id="keysGrid"></div></div>
+  </div>
+</div>
+
+<div class="toast" id="toast"><span data-ico="check"></span><span id="toastMsg"></span></div>
+<input type="file" id="filePick" accept=".md,.markdown,.mdown,.mkd,.mdx,.txt,text/markdown,text/plain" multiple hidden>
+
+<script type="text/plain" id="sampleDoc">
+# Recto
+
+Bir markdown belgesini olması gerektiği gibi gösteren, tek dosyalık bir çalışma alanı.
+Solda kaynak, sağda sayfa. Arada hiçbir şey yok.
+
+> Tipografi, metnin kendisini görünmez kılma sanatıdır.
+> — Beatrice Warde
+
+## Ne yapabilir
+
+- **Tam CommonMark + GFM**: tablolar, görev listeleri, üstü çizili, dipnotlar, otomatik bağlantılar
+- **Sözdizimi renklendirme**: yirmiden fazla dil, harici kütüphane yok
+- **Anahat gezinmesi**: kaydırdıkça takip eden içindekiler
+- **Yerel arşiv**: belgeler tarayıcıda saklanır, sunucuya hiçbir şey gitmez
+- **Dışa aktarım**: Markdown, bağımsız HTML veya yazdırılabilir PDF
+
+### Görev listesi
+
+- [x] Blok ayrıştırıcı
+- [x] Satır içi ayrıştırıcı
+- [x] Sözdizimi renklendirici
+- [ ] Sonsuz özellik listesi *(bilerek atlandı)*
+
+Kutucuklara tıklayabilirsin — kaynak metin de birlikte güncellenir.
+
+## Kod
+
+Kod blokları dil etiketini üstte gösterir ve tek tıkla kopyalanır.
+
+```javascript
+// Bir metni okunabilir bir slug'a çevirir.
+export function slugify(text, { max = 64 } = {}) {
+  const map = { ç: "c", ğ: "g", ı: "i", ö: "o", ş: "s", ü: "u" };
+  return text
+    .toLocaleLowerCase("tr")
+    .replace(/[çğıöşü]/g, (ch) => map[ch] ?? ch)
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "")
+    .slice(0, max);
+}
+```
+
+```python
+from dataclasses import dataclass
+
+@dataclass(frozen=True)
+class Belge:
+    baslik: str
+    kelime: int = 0
+
+    def okuma_suresi(self, hiz: int = 200) -> float:
+        """Dakika cinsinden tahmini okuma süresi."""
+        return round(self.kelime / hiz, 1)
+```
+
+```bash
+# Tek dosya, tek komut
+python3 -m http.server 8080 --directory ./public
+```
+
+Satır içi kod da destekli: `npm run build --workspace=@recto/core`.
+
+## Tablolar
+
+| Blok            | Destek | Not                                  |
+| --------------- | :----: | ------------------------------------ |
+| Başlıklar       |   ✓    | ATX ve Setext                        |
+| Listeler        |   ✓    | İç içe, gevşek/sıkı, görev listesi   |
+| Tablolar        |   ✓    | Hizalama satırıyla birlikte          |
+| Dipnotlar       |   ✓    | Geri bağlantılı                      |
+| HTML            |   ✓    | Temizlenmiş beyaz liste              |
+
+Sayılar sağa hizalanabilir:
+
+| Dosya      |   Satır |    Boyut |
+| ---------- | ------: | -------: |
+| parser.js  |   1.240 |  38,4 KB |
+| render.js  |     612 |  19,1 KB |
+| theme.css  |     880 |  24,7 KB |
+
+## Uyarı kutuları
+
+> [!NOTE]
+> GitHub biçimli uyarı kutuları desteklenir: NOTE, TIP, IMPORTANT, WARNING, CAUTION.
+
+> [!TIP]
+> `Ctrl` + `1/2/3` ile görünüm modları arasında geçiş yap.
+
+> [!WARNING]
+> Belgeler yalnızca bu tarayıcıda saklanır. Önemli metinleri dışa aktar.
+
+## Dipnotlar
+
+Markdown 2004'te John Gruber tarafından tasarlandı[^1]; GFM ise tablo ve görev listesi gibi eklerle onu genişletti[^gfm].
+
+[^1]: Asıl amaç, "HTML'e çevrilebilen ama düz metin olarak da okunabilen" bir biçimdi.
+[^gfm]: GitHub Flavored Markdown, CommonMark üzerine kurulu bir üst kümedir.
+
+## Tanımlar
+
+Blok öğe
+: Kendi satırını kaplayan yapı — paragraf, liste, tablo.
+
+Satır içi öğe
+: Metnin içinde yaşayan yapı — vurgu, bağlantı, kod.
+
+---
+
+### Küçük ayrıntılar
+
+Kısayol tuşları <kbd>Ctrl</kbd> + <kbd>K</kbd> biçiminde yazılabilir, ==vurgulama== ve ~~üstü çizili~~ metin çalışır.
+Otomatik bağlantı: https://commonmark.org
+
+1. Numaralı liste
+2. İç içe olabilir
+   1. Alt madde
+   2. Bir tane daha
+3. Ve devam eder
+
+*Belgeyi silip kendi metnini yazmaya başlayabilirsin.*
+</script>
+
+<script>
+(function () {
+"use strict";
+
+/* ==========================================================================
+   0 · ICONS
+   ========================================================================== */
+const S = (p, extra) => '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"' + (extra || "") + ">" + p + "</svg>";
+const ICONS = {
+  panel:    S('<rect x="3" y="4" width="18" height="16" rx="2"/><path d="M9 4v16"/>'),
+  search:   S('<circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/>'),
+  sun:      S('<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/>'),
+  moon:     S('<path d="M20 14.5A8.5 8.5 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5z"/>'),
+  auto:     S('<circle cx="12" cy="12" r="8.5"/><path d="M12 3.5a8.5 8.5 0 0 1 0 17z" fill="currentColor" stroke="none"/>'),
+  type:     S('<path d="M4 6.5V5h16v1.5M12 5v14M9 19h6"/>'),
+  more:     S('<circle cx="12" cy="5" r="1.4" fill="currentColor" stroke="none"/><circle cx="12" cy="12" r="1.4" fill="currentColor" stroke="none"/><circle cx="12" cy="19" r="1.4" fill="currentColor" stroke="none"/>'),
+  plus:     S('<path d="M12 5v14M5 12h14"/>'),
+  folder:   S('<path d="M3 7.5A1.5 1.5 0 0 1 4.5 6h4l2 2.5h7A1.5 1.5 0 0 1 19 10v7.5a1.5 1.5 0 0 1-1.5 1.5h-13A1.5 1.5 0 0 1 3 17.5z"/>'),
+  book:     S('<path d="M4 5.5A1.5 1.5 0 0 1 5.5 4H11v16H5.5A1.5 1.5 0 0 1 4 18.5z"/><path d="M20 5.5A1.5 1.5 0 0 0 18.5 4H13v16h5.5a1.5 1.5 0 0 0 1.5-1.5z"/>'),
+  download: S('<path d="M12 3v12m0 0 4.5-4.5M12 15l-4.5-4.5M4 18.5V20a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-1.5"/>'),
+  code:     S('<path d="m9 8-5 4 5 4M15 8l5 4-5 4"/>'),
+  print:    S('<path d="M7 9V4h10v5M7 18H5a1 1 0 0 1-1-1v-6a1 1 0 0 1 1-1h14a1 1 0 0 1 1 1v6a1 1 0 0 1-1 1h-2"/><rect x="7" y="14" width="10" height="6" rx="1"/>'),
+  copy:     S('<rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15H4a1 1 0 0 1-1-1V5a1 1 0 0 1 1-1h9a1 1 0 0 1 1 1v1"/>'),
+  keyboard: S('<rect x="2.5" y="6" width="19" height="12" rx="2"/><path d="M6.5 10h.01M10 10h.01M13.5 10h.01M17 10h.01M8 14h8"/>'),
+  trash:    S('<path d="M4 7h16M9.5 7V5h5v2M6.5 7l.8 12a1 1 0 0 0 1 1h7.4a1 1 0 0 0 1-1l.8-12"/>'),
+  x:        S('<path d="M6 6l12 12M18 6 6 18"/>'),
+  up:       S('<path d="m6 14 6-6 6 6"/>'),
+  down:     S('<path d="m6 10 6 6 6-6"/>'),
+  check:    S('<path d="m5 12.5 4.5 4.5L19 7"/>'),
+  heading:  S('<path d="M5 5v14M15 5v14M5 12h10M19 19v-7l-2 1.4"/>'),
+  bold:     S('<path d="M7 5h6.2a3.4 3.4 0 0 1 0 6.8H7zM7 11.8h7a3.6 3.6 0 0 1 0 7.2H7z"/>'),
+  italic:   S('<path d="M15 5h-5M14 19H9M13.5 5 10.5 19"/>'),
+  strike:   S('<path d="M4 12h16M7.5 8.5C7.5 6.5 9.3 5 12 5c2.4 0 4 1 4.4 2.6M16.5 15.5C16.5 17.6 14.7 19 12 19c-2.7 0-4.4-1.2-4.7-3"/>'),
+  link:     S('<path d="M10.5 13.5a3.5 3.5 0 0 0 5 0l3-3a3.54 3.54 0 0 0-5-5l-1.5 1.5"/><path d="M13.5 10.5a3.5 3.5 0 0 0-5 0l-3 3a3.54 3.54 0 0 0 5 5L12 17"/>'),
+  image:    S('<rect x="3.5" y="5" width="17" height="14" rx="2"/><circle cx="9" cy="10" r="1.5"/><path d="m4 17 4.5-4.5 3 3L15 12l5 5"/>'),
+  terminal: S('<rect x="3" y="4.5" width="18" height="15" rx="2"/><path d="m7 10 2.5 2L7 14M12.5 14.5H17"/>'),
+  quote:    S('<path d="M9.5 6C7 7 5.5 9 5.5 11.5V18h6v-6H8c0-2 .6-3.4 2.4-4.4zM20 6c-2.5 1-4 3-4 5.5V18h6v-6h-3.5c0-2 .6-3.4 2.4-4.4z"/>'),
+  listul:   S('<path d="M9 6.5h11M9 12h11M9 17.5h11M4.5 6.5h.01M4.5 12h.01M4.5 17.5h.01"/>'),
+  listol:   S('<path d="M9.5 6.5h10M9.5 12h10M9.5 17.5h10M4 4.5l1.3-.5v4M3.6 11.2c.2-.7 1.5-1 2 0 .3.7-.4 1.2-1 1.7l-1 1h2.1M3.6 15.6c.6-.7 2-.4 2 .5s-1 .9-1 .9 1.2 0 1.2 1-1.6 1.3-2.2.5"/>'),
+  table:    S('<rect x="3.5" y="5" width="17" height="14" rx="1.5"/><path d="M3.5 9.8h17M9.8 9.8V19M15 9.8V19"/>'),
+  minus:    S('<path d="M5 12h14"/>')
+};
+function paintIcons(root) {
+  (root || document).querySelectorAll("[data-ico]").forEach(function (el) {
+    const k = el.getAttribute("data-ico");
+    const first = el.firstElementChild;
+    const hasIcon = first && first.tagName && first.tagName.toLowerCase() === "svg";
+    if (ICONS[k] && !hasIcon) el.insertAdjacentHTML("afterbegin", ICONS[k]);
+  });
+}
+
+/* ==========================================================================
+   1 · MARKDOWN ENGINE
+   ========================================================================== */
+const MD = (function () {
+
+  const PH = "\uE000";                       // placeholder sentinel (private use area)
+  const PH_RE = new RegExp(PH + "(\\d+)" + PH, "g");
+  const ENT = { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" };
+  const esc = s => String(s).replace(/[&<>"']/g, c => ENT[c]);
+  const unent = s => String(s)
+    .replace(/&lt;/g, "<").replace(/&gt;/g, ">")
+    .replace(/&quot;/g, '"').replace(/&#39;/g, "'")
+    .replace(/&amp;/g, "&");
+
+  const RE = {
+    blank:   /^[ \t]*$/,
+    fence:   /^( {0,3})(`{3,}|~{3,})[ \t]*(.*)$/,
+    atx:     /^ {0,3}(#{1,6})(?:[ \t]+(.*?))?[ \t]*$/,
+    hr:      /^ {0,3}(?:(?:\*[ \t]*){3,}|(?:-[ \t]*){3,}|(?:_[ \t]*){3,})$/,
+    quote:   /^ {0,3}>[ ]?/,
+    ul:      /^( {0,3})([-+*])(?:([ \t]+)(.*)|[ \t]*$)/,
+    ol:      /^( {0,3})(\d{1,9})([.)])(?:([ \t]+)(.*)|[ \t]*$)/,
+    setext:  /^ {0,3}(=+|-+)[ \t]*$/,
+    tdelim:  /^ {0,3}\|?[ \t]*:?-+:?[ \t]*(?:\|[ \t]*:?-+:?[ \t]*)*\|?[ \t]*$/,
+    fndef:   /^ {0,3}\[\^([^\]\s]+)\]:[ \t]*(.*)$/,
+    refdef:  /^ {0,3}\[([^^\]][^\]]*|[^\]])\]:[ \t]*(?:<([^>]*)>|(\S+))[ \t]*(?:["'(](.*)["')])?[ \t]*$/,
+    indent4: /^(?: {4}|\t)/,
+    html:    /^ {0,3}(?:<\/?[A-Za-z][A-Za-z0-9-]*(?:[ \t>/]|$)|<!--|<!\[CDATA\[|<\?|<![A-Za-z])/,
+    dd:      /^ {0,3}:[ \t]+(\S.*)$/
+  };
+
+  const CALLOUTS = {
+    NOTE:      { cls: "note",      tr: "NOT",    ico: '<circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/>' },
+    TIP:       { cls: "tip",       tr: "İPUCU",  ico: '<path d="M9 18h6M10 21h4M12 3a6 6 0 0 0-3.6 10.8c.5.4.8 1 .9 1.7h5.4c.1-.7.4-1.3.9-1.7A6 6 0 0 0 12 3z"/>' },
+    IMPORTANT: { cls: "important", tr: "ÖNEMLİ", ico: '<path d="M12 3.5 21 19H3z"/><path d="M12 10v4M12 16.5h.01"/>' },
+    WARNING:   { cls: "warning",   tr: "UYARI",  ico: '<circle cx="12" cy="12" r="9"/><path d="M12 7.5v5M12 16h.01"/>' },
+    CAUTION:   { cls: "caution",   tr: "DİKKAT", ico: '<path d="M10.3 3.7 3.7 10.3a1 1 0 0 0 0 1.4l6.6 6.6a1 1 0 0 0 1.4 0l6.6-6.6a1 1 0 0 0 0-1.4l-6.6-6.6a1 1 0 0 0-1.4 0z"/><path d="M12 8v4.5M12 16h.01"/>' }
+  };
+
+  const TR_MAP = { "ç": "c", "ğ": "g", "ı": "i", "ö": "o", "ş": "s", "ü": "u", "â": "a", "î": "i", "û": "u" };
+  function slugify(text) {
+    return String(text)
+      .replace(/<[^>]*>/g, "")
+      .replace(/&[a-z#0-9]+;/gi, "")
+      .toLowerCase()
+      .replace(/[çğıöşüâîû]/g, c => TR_MAP[c] || c)
+      .replace(/[^\w\- ]/g, "")
+      .trim().replace(/\s+/g, "-").replace(/-+/g, "-")
+      .replace(/^-|-$/g, "") || "bolum";
+  }
+
+  function safeUrl(raw) {
+    let u = unent(String(raw).trim());
+    if (/^<.*>$/.test(u)) u = u.slice(1, -1);
+    const probe = u.replace(/[\s\-]/g, "").toLowerCase();
+    if (/^(javascript|vbscript|file):/.test(probe)) return "#";
+    if (/^data:/.test(probe) && !/^data:image\/(png|jpe?g|gif|webp|svg\+xml|avif);/.test(probe)) return "#";
+    return esc(u);
+  }
+
+  /* ---------------------------------------------------------------- inline */
+  function keep(store, html) { store.push(html); return PH + (store.length - 1) + PH; }
+  function restore(s, store) {
+    for (let n = 0; n < 12 && s.indexOf(PH) !== -1; n++) {
+      PH_RE.lastIndex = 0;
+      s = s.replace(PH_RE, (m, i) => (store[+i] !== undefined ? store[+i] : m));
+    }
+    return s;
+  }
+  function plain(s, store) { return restore(s, store).replace(/<[^>]*>/g, ""); }
+
+  function inline(src, ctx) {
+    const store = [];
+    return restore(phase2(phase1(src, store, ctx), store, ctx), store);
+  }
+
+  function phase1(s, store, ctx) {
+    s = s.replace(/\\\n/g, () => keep(store, "<br>\n"));
+    s = s.replace(/\\([\\`*_{}\[\]()#+\-.!>~|"'^=$@:;,/])/g, (m, c) => keep(store, esc(c)));
+    s = s.replace(/(`+)([^`]|[^`][\s\S]*?[^`])\1(?!`)/g, function (m, f, code) {
+      let c = code.replace(/\n/g, " ");
+      if (c.length > 2 && c.charAt(0) === " " && c.charAt(c.length - 1) === " " && /[^ ]/.test(c)) c = c.slice(1, -1);
+      return keep(store, "<code>" + esc(c) + "</code>");
+    });
+    s = s.replace(/<((?:https?|ftp|mailto|tel):[^\s<>]+)>/gi,
+      (m, u) => keep(store, '<a href="' + safeUrl(u) + '" rel="noopener noreferrer" target="_blank">' + esc(unent(u)) + "</a>"));
+    s = s.replace(/<([A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,})>/g,
+      (m, u) => keep(store, '<a href="mailto:' + esc(u) + '">' + esc(u) + "</a>"));
+    s = s.replace(/<\/?[A-Za-z][A-Za-z0-9-]*(?:\s[^<>]*?)?\/?>|<!--[\s\S]*?-->/g, m => keep(store, m));
+    return esc(s);
+  }
+
+  const QO = "(?:&quot;|&#39;|\\()";
+  const QC = "(?:&quot;|&#39;|\\))";
+  const IMG_RE = new RegExp("!\\[([^\\]]*)\\]\\([ \\t]*(&lt;[^\\s]*?&gt;|[^\\s)]*)(?:[ \\t]+" + QO + "(.*?)" + QC + ")?[ \\t]*\\)", "g");
+  const LNK_RE = new RegExp("\\[((?:[^\\[\\]]|\\[[^\\[\\]]*\\])*)\\]\\([ \\t]*(&lt;[^\\s]*?&gt;|[^\\s)]*)(?:[ \\t]+" + QO + "(.*?)" + QC + ")?[ \\t]*\\)", "g");
+
+  function anchor(href, text, title) {
+    const ext = /^(?:https?:)?\/\//i.test(unent(href));
+    return '<a href="' + href + '"' + (title ? ' title="' + title + '"' : "") +
+      (ext ? ' rel="noopener noreferrer" target="_blank"' : "") + ">" + text + "</a>";
+  }
+  function normRef(s) { return String(s).replace(/\s+/g, " ").trim().toLowerCase(); }
+
+  function phase2(s, store, ctx) {
+    s = s.replace(/\[\^([^\]\s]+)\]/g, function (m, id) {
+      const key = id.toLowerCase();
+      if (!ctx.fnDefs[key]) return m;
+      let n = ctx.fnOrder.indexOf(key);
+      if (n === -1) { ctx.fnOrder.push(key); n = ctx.fnOrder.length - 1; }
+      const slug = slugify(key);
+      return keep(store, '<sup><a class="fnref" id="fnref-' + slug + '" href="#fn-' + slug + '">' + (n + 1) + "</a></sup>");
+    });
+    IMG_RE.lastIndex = 0;
+    s = s.replace(IMG_RE, function (m, alt, src, title) {
+      return keep(store, '<img src="' + safeUrl(src) + '" alt="' + esc(plain(alt, store)) + '"' +
+        (title ? ' title="' + title + '"' : "") + ' loading="lazy" decoding="async">');
+    });
+    LNK_RE.lastIndex = 0;
+    s = s.replace(LNK_RE, function (m, label, href, title) {
+      return keep(store, anchor(safeUrl(href), phase2(label, store, ctx), title));
+    });
+    s = s.replace(/\[((?:[^\[\]]|\[[^\[\]]*\])*)\]\[([^\]]*)\]/g, function (m, label, id) {
+      const r = ctx.refs[normRef(id || label)];
+      if (!r) return m;
+      return keep(store, anchor(r.href, phase2(label, store, ctx), r.title));
+    });
+    s = s.replace(/\[((?:[^\[\]]|\[[^\[\]]*\])*)\]/g, function (m, label) {
+      const r = ctx.refs[normRef(label)];
+      if (!r) return m;
+      return keep(store, anchor(r.href, phase2(label, store, ctx), r.title));
+    });
+    s = s.replace(/(^|[\s(])((?:https?:\/\/|www\.)[^\s<>"'`]+)/g, function (m, pre, url) {
+      let tail = "";
+      const t = url.match(/(?:&gt;|&lt;|&quot;|&#39;|[.,;:!?)\]])+$/);
+      if (t) { tail = t[0]; url = url.slice(0, url.length - tail.length); }
+      if (!url) return m;
+      const href = /^www\./i.test(url) ? "http://" + url : url;
+      return pre + keep(store, '<a href="' + safeUrl(href) + '" rel="noopener noreferrer" target="_blank">' + url + "</a>") + tail;
+    });
+    s = s.replace(/~~(?=\S)([\s\S]*?\S)~~/g, "<del>$1</del>");
+    s = s.replace(/==(?=\S)([\s\S]*?\S)==/g, "<mark>$1</mark>");
+    s = s.replace(/\*\*\*(?=\S)([\s\S]*?\S)\*\*\*/g, "<strong><em>$1</em></strong>");
+    s = s.replace(/\*\*(?=\S)([\s\S]*?\S)\*\*/g, "<strong>$1</strong>");
+    s = s.replace(/\*(?=[^\s*])((?:[^*]|\*\*)*?[^\s*])\*/g, "<em>$1</em>");
+    s = s.replace(/(^|[^\w])___(?=\S)([\s\S]*?\S)___(?!\w)/g, "$1<strong><em>$2</em></strong>");
+    s = s.replace(/(^|[^\w])__(?=\S)([\s\S]*?\S)__(?!\w)/g, "$1<strong>$2</strong>");
+    s = s.replace(/(^|[^\w])_(?=\S)([\s\S]*?\S)_(?!\w)/g, "$1<em>$2</em>");
+    if (ctx.opts.smart) {
+      s = s.replace(/---/g, "—").replace(/(^|[^\-!<>])--(?![\->])/g, "$1–")
+           .replace(/\.\.\./g, "…")
+           .replace(/(^|[\s([{])&quot;/g, "$1“").replace(/&quot;/g, "”")
+           .replace(/(^|[\s([{])&#39;/g, "$1‘").replace(/&#39;/g, "’");
+    }
+    s = ctx.opts.breaks ? s.replace(/ *\n/g, "<br>\n") : s.replace(/ {2,}\n/g, "<br>\n");
+    return s;
+  }
+
+  /* ---------------------------------------------------------------- blocks */
+  function unindent(l, n) { let k = 0; while (k < n && l.charAt(k) === " ") k++; return l.slice(k); }
+  function isListLine(l) { return !RE.hr.test(l) && (RE.ul.test(l) || RE.ol.test(l)); }
+  function isListStart(l) {
+    const u = RE.ul.exec(l);
+    if (u && !RE.hr.test(l) && u[4] !== undefined && u[4].trim() !== "") return true;
+    const o = RE.ol.exec(l);
+    if (o && o[5] !== undefined && o[5].trim() !== "" && o[2] === "1") return true;
+    return false;
+  }
+  function startsBlock(l) {
+    return RE.blank.test(l) || RE.hr.test(l) || RE.atx.test(l) || RE.fence.test(l) ||
+           RE.quote.test(l) || RE.html.test(l) || RE.fndef.test(l) || isListStart(l);
+  }
+  function splitRow(row) {
+    let r = row.trim();
+    if (r.charAt(0) === "|") r = r.slice(1);
+    if (r.length && r.charAt(r.length - 1) === "|" && r.charAt(r.length - 2) !== "\\") r = r.slice(0, -1);
+    const cells = []; let cur = "";
+    for (let i = 0; i < r.length; i++) {
+      const c = r.charAt(i);
+      if (c === "\\" && r.charAt(i + 1) === "|") { cur += "|"; i++; continue; }
+      if (c === "|") { cells.push(cur); cur = ""; continue; }
+      cur += c;
+    }
+    cells.push(cur);
+    return cells.map(s => s.trim());
+  }
+  function tableAt(lines, i) {
+    const head = lines[i], del = lines[i + 1];
+    if (head === undefined || del === undefined) return null;
+    if (head.indexOf("|") === -1 || RE.blank.test(head)) return null;
+    if (!RE.tdelim.test(del)) return null;
+    const h = splitRow(head), d = splitRow(del);
+    if (!d.length || d.length !== h.length) return null;
+    for (let k = 0; k < d.length; k++) if (!/^:?-+:?$/.test(d[k])) return null;
+    return {
+      head: h,
+      align: d.map(function (c) {
+        const l = c.charAt(0) === ":", r = c.charAt(c.length - 1) === ":";
+        return l && r ? "center" : r ? "right" : l ? "left" : "";
+      })
+    };
+  }
+  function uniqueSlug(ctx, base) {
+    let s = base, n = 1;
+    while (ctx.slugs[s]) { n++; s = base + "-" + n; }
+    ctx.slugs[s] = 1;
+    return s;
+  }
+  const COPY_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15H4a1 1 0 0 1-1-1V5a1 1 0 0 1 1-1h9a1 1 0 0 1 1 1v1"/></svg>';
+  function codeBlock(code, lang) {
+    const label = lang || "metin";
+    return '<div class="code"><div class="code__bar"><span class="code__lang">' + esc(label) + "</span>" +
+      '<button class="code__copy" type="button" data-copy><span>kopyala</span>' + COPY_SVG + "</button></div>" +
+      "<pre><code" + (lang ? ' class="language-' + esc(lang) + '"' : "") + ">" + HL.render(code, lang) + "</code></pre></div>";
+  }
+  function withLine(html, n) {
+    return html.replace(/^<([A-Za-z][\w:-]*)/, '<$1 data-line="' + n + '"');
+  }
+  function headingHtml(text, level, ctx) {
+    const inner = inline(text, ctx);
+    const id = uniqueSlug(ctx, slugify(text));
+    ctx.toc.push({ level: level, id: id, text: inner.replace(/<[^>]*>/g, "") });
+    return "<h" + level + ' id="' + id + '"><a class="anchor" href="#' + id + '" aria-hidden="true" tabindex="-1"></a>' +
+      inner + "</h" + level + ">";
+  }
+
+  function doFence(lines, i, m) {
+    const indent = m[1].length, mark = m[2], ch = mark.charAt(0);
+    const info = (m[3] || "").trim();
+    const closer = new RegExp("^ {0,3}\\" + ch + "{" + mark.length + ",}[ \\t]*$");
+    const buf = [];
+    let j = i + 1;
+    while (j < lines.length) {
+      if (closer.test(lines[j])) { j++; break; }
+      buf.push(unindent(lines[j], indent));
+      j++;
+    }
+    const lang = (info.split(/[\s,{;]/)[0] || "").replace(/^\./, "").toLowerCase();
+    return { html: codeBlock(buf.join("\n"), HL.alias(lang)), i: j };
+  }
+
+  function doQuote(lines, i, ctx) {
+    const buf = [];
+    while (i < lines.length) {
+      const l = lines[i];
+      if (RE.quote.test(l)) { buf.push(l.replace(RE.quote, "")); i++; continue; }
+      if (RE.blank.test(l)) break;
+      if (buf.length && !startsBlock(l) && !RE.blank.test(buf[buf.length - 1])) {
+        buf.push(l.replace(/^[ \t]+/, "")); i++; continue;
+      }
+      break;
+    }
+    const cm = /^\[!([A-Za-z]+)\][ \t]*(.*)$/.exec(buf[0] || "");
+    if (cm && CALLOUTS[cm[1].toUpperCase()]) {
+      const c = CALLOUTS[cm[1].toUpperCase()], title = cm[2].trim();
+      buf[0] = "";
+      return {
+        html: '<div class="callout callout--' + c.cls + '"><div class="callout__t">' +
+          '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">' +
+          c.ico + "</svg>" + (title ? inline(title, ctx) : c.tr) + "</div>" + blocks(buf, ctx, {}) + "</div>",
+        i: i
+      };
+    }
+    return { html: "<blockquote>" + blocks(buf, ctx, {}) + "</blockquote>", i: i };
+  }
+
+  function doList(lines, i, ctx) {
+    const first = lines[i];
+    let ordered = false, start = 1, marker;
+    let m = RE.ul.exec(first);
+    if (m && !RE.hr.test(first)) { marker = m[2]; }
+    else { m = RE.ol.exec(first); ordered = true; start = parseInt(m[2], 10); marker = m[3]; }
+    const items = [];
+    let loose = false;
+
+    while (i < lines.length) {
+      const l = lines[i];
+      if (RE.hr.test(l)) break;
+      const mm = ordered ? RE.ol.exec(l) : RE.ul.exec(l);
+      if (!mm) break;
+      if ((ordered ? mm[3] : mm[2]) !== marker) break;
+      if (mm[1].length >= 4) break;
+
+      const markerStr = ordered ? mm[2] + mm[3] : mm[2];
+      const spacesRaw = ordered ? mm[4] : mm[3];
+      let spaces = spacesRaw ? spacesRaw.length : 1;
+      if (spaces > 4) spaces = 1;
+      const rest = (ordered ? mm[5] : mm[4]);
+      const contentIndent = mm[1].length + markerStr.length + spaces;
+      const buf = [rest === undefined ? "" : rest];
+      i++;
+
+      let blanks = 0;
+      while (i < lines.length) {
+        const c = lines[i];
+        if (RE.blank.test(c)) { blanks++; i++; continue; }
+        const cIndent = (c.match(/^ */) || [""])[0].length;
+        const newItem = isListLine(c) && cIndent < contentIndent;
+        if (cIndent >= contentIndent) {
+          if (blanks) { loose = true; while (blanks--) buf.push(""); blanks = 0; }
+          buf.push(c.slice(contentIndent));
+          i++;
+          continue;
+        }
+        if (blanks) { if (newItem) loose = true; break; }
+        if (newItem) break;
+        if (!startsBlock(c)) { buf.push(c.replace(/^[ \t]+/, "")); i++; continue; }
+        break;
+      }
+      items.push(buf);
+    }
+
+    const tag = ordered ? "ol" : "ul";
+    let html = "<" + tag + (ordered && start !== 1 ? ' start="' + start + '"' : "") + ">";
+    for (let k = 0; k < items.length; k++) {
+      const buf = items[k];
+      let cls = "", box = "";
+      const tm = /^\[([ xX])\][ \t]+/.exec(buf[0] || "");
+      if (tm) {
+        const done = tm[1].toLowerCase() === "x";
+        buf[0] = buf[0].slice(tm[0].length);
+        cls = ' class="task' + (done ? " done" : "") + '"';
+        box = '<input type="checkbox" data-task="' + (ctx.taskN++) + '"' + (done ? " checked" : "") + ">";
+      }
+      const body = blocks(buf, ctx, { tight: !loose });
+      html += "<li" + cls + ">" + box + body + "</li>";
+    }
+    return { html: html + "</" + tag + ">", i: i };
+  }
+
+  function doTable(lines, i, ctx) {
+    const t = tableAt(lines, i);
+    let j = i + 2;
+    const rows = [];
+    while (j < lines.length) {
+      const l = lines[j];
+      if (RE.blank.test(l) || l.indexOf("|") === -1 || RE.hr.test(l)) break;
+      rows.push(splitRow(l)); j++;
+    }
+    let h = '<div class="table-wrap"><table><thead><tr>';
+    for (let k = 0; k < t.head.length; k++) {
+      h += "<th" + (t.align[k] ? ' align="' + t.align[k] + '"' : "") + ">" + inline(t.head[k], ctx) + "</th>";
+    }
+    h += "</tr></thead>";
+    if (rows.length) {
+      h += "<tbody>";
+      for (let r = 0; r < rows.length; r++) {
+        h += "<tr>";
+        for (let k = 0; k < t.head.length; k++) {
+          const cell = rows[r][k] === undefined ? "" : rows[r][k];
+          h += "<td" + (t.align[k] ? ' align="' + t.align[k] + '"' : "") + ">" + inline(cell, ctx) + "</td>";
+        }
+        h += "</tr>";
+      }
+      h += "</tbody>";
+    }
+    return { html: h + "</table></div>", i: j };
+  }
+
+  function doHtmlBlock(lines, i) {
+    const buf = [];
+    while (i < lines.length && !RE.blank.test(lines[i])) { buf.push(lines[i]); i++; }
+    return { html: buf.join("\n"), i: i };
+  }
+
+  function doIndentCode(lines, i) {
+    const buf = [];
+    while (i < lines.length) {
+      const l = lines[i];
+      if (RE.blank.test(l)) {
+        let k = i;
+        while (k < lines.length && RE.blank.test(lines[k])) k++;
+        if (k < lines.length && RE.indent4.test(lines[k])) { for (let x = i; x < k; x++) buf.push(""); i = k; continue; }
+        break;
+      }
+      if (!RE.indent4.test(l)) break;
+      buf.push(l.replace(/^(?: {4}|\t)/, "")); i++;
+    }
+    return { html: codeBlock(buf.join("\n").replace(/\s+$/, ""), ""), i: i };
+  }
+
+  function isDefList(lines, i) {
+    const n = lines[i + 1];
+    return n !== undefined && RE.dd.test(n) && !RE.blank.test(lines[i]) && !RE.dd.test(lines[i]);
+  }
+  function doDefList(lines, i, ctx) {
+    let h = "<dl>";
+    while (i < lines.length) {
+      const l = lines[i];
+      if (RE.blank.test(l)) {
+        let k = i;
+        while (k < lines.length && RE.blank.test(lines[k])) k++;
+        if (k < lines.length && (RE.dd.test(lines[k]) || (lines[k + 1] !== undefined && RE.dd.test(lines[k + 1])))) { i = k; continue; }
+        break;
+      }
+      const dm = RE.dd.exec(l);
+      if (dm) { h += "<dd>" + inline(dm[1], ctx) + "</dd>"; i++; continue; }
+      if (lines[i + 1] !== undefined && RE.dd.test(lines[i + 1])) { h += "<dt>" + inline(l.trim(), ctx) + "</dt>"; i++; continue; }
+      break;
+    }
+    return { html: h + "</dl>", i: i };
+  }
+
+  function doPara(lines, i, ctx, tight) {
+    const buf = [];
+    while (i < lines.length) {
+      const l = lines[i];
+      if (RE.blank.test(l)) break;
+      if (buf.length) {
+        const sm = RE.setext.exec(l);
+        if (sm) return { html: headingHtml(buf.join("\n"), sm[1].charAt(0) === "=" ? 1 : 2, ctx), i: i + 1 };
+        if (startsBlock(l) || tableAt(lines, i)) break;
+      }
+      buf.push(l.replace(/^[ \t]+/, ""));
+      i++;
+    }
+    const text = buf.join("\n");
+    if (!text.trim()) return { html: null, i: i };
+    const inner = inline(text, ctx);
+    return { html: tight ? inner : "<p>" + inner + "</p>", i: i };
+  }
+
+  function blocks(lines, ctx, opts) {
+    opts = opts || {};
+    const top = !!opts.top, tight = !!opts.tight, off = opts.off || 0;
+    const out = [];
+    let i = 0;
+    while (i < lines.length) {
+      const line = lines[i];
+      if (RE.blank.test(line)) { i++; continue; }
+      const at = off + i;
+      let html = null, m, r;
+
+      if ((m = RE.fence.exec(line)) && m[2]) { r = doFence(lines, i, m); html = r.html; i = r.i; }
+      else if (RE.hr.test(line)) { html = "<hr>"; i++; }
+      else if ((m = RE.atx.exec(line))) { html = headingHtml((m[2] || "").replace(/[ \t]+#+[ \t]*$/, ""), m[1].length, ctx); i++; }
+      else if (RE.quote.test(line)) { r = doQuote(lines, i, ctx); html = r.html; i = r.i; }
+      else if (isListLine(line)) { r = doList(lines, i, ctx); html = r.html; i = r.i; }
+      else if (tableAt(lines, i)) { r = doTable(lines, i, ctx); html = r.html; i = r.i; }
+      else if (RE.html.test(line)) { r = doHtmlBlock(lines, i); html = r.html; i = r.i; }
+      else if (RE.indent4.test(line)) { r = doIndentCode(lines, i); html = r.html; i = r.i; }
+      else if (isDefList(lines, i)) { r = doDefList(lines, i, ctx); html = r.html; i = r.i; }
+      else { r = doPara(lines, i, ctx, tight); html = r.html; i = r.i; }
+
+      if (html) out.push(top ? withLine(html, at) : html);
+    }
+    return out.join("\n");
+  }
+
+  /* --------------------------------------------------------------- prescan */
+  function prescan(lines, ctx) {
+    let inFence = false, fch = "", flen = 0;
+    for (let i = 0; i < lines.length; i++) {
+      const l = lines[i];
+      const fm = RE.fence.exec(l);
+      if (fm && fm[2]) {
+        const ch = fm[2].charAt(0), len = fm[2].length;
+        if (!inFence) { inFence = true; fch = ch; flen = len; }
+        else if (ch === fch && len >= flen && !(fm[3] || "").trim()) inFence = false;
+        continue;
+      }
+      if (inFence || RE.indent4.test(l)) continue;
+
+      let m = RE.fndef.exec(l);
+      if (m) {
+        const key = m[1].toLowerCase();
+        const buf = [m[2]];
+        lines[i] = "";
+        let j = i + 1;
+        while (j < lines.length) {
+          const n = lines[j];
+          if (RE.blank.test(n)) {
+            let k = j;
+            while (k < lines.length && RE.blank.test(lines[k])) k++;
+            if (k < lines.length && RE.indent4.test(lines[k])) {
+              for (let x = j; x < k; x++) lines[x] = "";
+              buf.push(""); j = k; continue;
+            }
+            break;
+          }
+          if (RE.indent4.test(n)) { buf.push(n.replace(/^(?: {4}|\t)/, "")); lines[j] = ""; j++; continue; }
+          break;
+        }
+        ctx.fnDefs[key] = buf.join("\n");
+        i = j - 1;
+        continue;
+      }
+      m = RE.refdef.exec(l);
+      if (m) {
+        ctx.refs[normRef(m[1])] = {
+          href: safeUrl(m[2] !== undefined ? m[2] : m[3]),
+          title: m[4] ? esc(m[4]) : ""
+        };
+        lines[i] = "";
+      }
+    }
+  }
+
+  function renderFootnotes(ctx) {
+    if (!ctx.fnOrder.length) return "";
+    let h = '<section class="footnotes"><h2>Dipnotlar</h2><ol>';
+    for (let n = 0; n < ctx.fnOrder.length; n++) {
+      const key = ctx.fnOrder[n], slug = slugify(key);
+      const body = blocks(String(ctx.fnDefs[key] || "").split("\n"), ctx, {});
+      const back = ' <a class="fnback" href="#fnref-' + slug + '" aria-label="Metne dön">&#8617;</a>';
+      const withBack = /<\/p>\s*$/.test(body) ? body.replace(/<\/p>(\s*)$/, back + "</p>$1") : body + back;
+      h += '<li id="fn-' + slug + '">' + withBack + "</li>";
+    }
+    return h + "</ol></section>";
+  }
+
+  /* -------------------------------------------------------------- sanitize */
+  const DROP_TAGS = { script: 1, style: 1, iframe: 1, object: 1, embed: 1, link: 1, meta: 1, base: 1, form: 1, noscript: 1, template: 1, frame: 1, frameset: 1, applet: 1, canvas: 1 };
+  const OK_TAGS = {};
+  ("a abbr b blockquote br button caption cite code col colgroup dd del details div dl dt em figcaption figure h1 h2 h3 h4 h5 h6 hr i img input ins kbd li mark ol p picture pre q s samp section small source span strong sub summary sup table tbody td tfoot th thead time tr u ul var wbr svg path circle rect line polyline polygon g ellipse")
+    .split(" ").forEach(function (t) { OK_TAGS[t] = 1; });
+  const OK_ATTRS = {};
+  ("class id title dir lang align colspan rowspan start type checked disabled width height alt src href rel target loading decoding role tabindex srcset sizes datetime open value name viewbox fill stroke stroke-width stroke-linecap stroke-linejoin stroke-dasharray d cx cy r rx ry x y x1 y1 x2 y2 points transform preserveaspectratio")
+    .split(" ").forEach(function (a) { OK_ATTRS[a] = 1; });
+
+  function badUrl(val) {
+    const probe = String(val).replace(/[\s\u0000-\u001f]/g, "").toLowerCase();
+    if (/^(javascript|vbscript|file):/.test(probe)) return true;
+    if (/^data:/.test(probe) && !/^data:image\/(png|jpe?g|gif|webp|svg\+xml|avif);/.test(probe)) return true;
+    return false;
+  }
+  function scrubAttrs(el) {
+    const attrs = Array.prototype.slice.call(el.attributes);
+    for (let i = 0; i < attrs.length; i++) {
+      const name = attrs[i].name.toLowerCase();
+      const val = attrs[i].value;
+      const dataOk = name === "data-line" || name === "data-copy" || name === "data-task" ||
+                     name === "data-lang" || name.indexOf("aria-") === 0;
+      if (!OK_ATTRS[name] && !dataOk) { el.removeAttribute(attrs[i].name); continue; }
+      if ((name === "href" || name === "src" || name === "srcset") && badUrl(val)) {
+        el.setAttribute(attrs[i].name, "#");
+      }
+    }
+    if (el.tagName.toLowerCase() === "a" && /^(?:https?:)?\/\//i.test(el.getAttribute("href") || "")) {
+      el.setAttribute("rel", "noopener noreferrer");
+      el.setAttribute("target", "_blank");
+    }
+  }
+  function scrub(node) {
+    const kids = Array.prototype.slice.call(node.childNodes);
+    for (let i = 0; i < kids.length; i++) {
+      const n = kids[i];
+      if (n.nodeType === 8) { node.removeChild(n); continue; }
+      if (n.nodeType !== 1) continue;
+      const tag = (n.tagName || "").toLowerCase();
+      if (DROP_TAGS[tag]) { node.removeChild(n); continue; }
+      if (!OK_TAGS[tag]) {
+        scrub(n);
+        while (n.firstChild) node.insertBefore(n.firstChild, n);
+        node.removeChild(n);
+        continue;
+      }
+      scrubAttrs(n);
+      scrub(n);
+    }
+  }
+  function sanitize(html) {
+    if (typeof DOMParser === "undefined") return html;
+    try {
+      const doc = new DOMParser().parseFromString("<!doctype html><body>" + html + "</body>", "text/html");
+      scrub(doc.body);
+      return doc.body.innerHTML;
+    } catch (e) { return html; }
+  }
+
+  /* ------------------------------------------------------------------ main */
+  function parse(src, options) {
+    const opts = { smart: false, breaks: false };
+    if (options) { if (options.smart) opts.smart = true; if (options.breaks) opts.breaks = true; }
+    const ctx = { refs: {}, fnDefs: {}, fnOrder: [], toc: [], slugs: {}, taskN: 0, opts: opts };
+    const text = String(src == null ? "" : src).replace(/\r\n?/g, "\n").replace(/[\u00a0\u2007\u202f]/g, " ");
+    const lines = text.split("\n").map(function (l) {
+      return l.replace(/^[ \t]+/, function (w) { return w.replace(/\t/g, "    "); });
+    });
+    prescan(lines, ctx);
+    let html = blocks(lines, ctx, { top: true, off: 0 });
+    html += renderFootnotes(ctx);
+    return { html: sanitize(html), toc: ctx.toc };
+  }
+
+  return { parse: parse, escape: esc, slugify: slugify };
+})();
+
+/* ==========================================================================
+   2 · SYNTAX HIGHLIGHTER  (rule driven, no dependencies)
+   ========================================================================== */
+const HL = (function () {
+  const ENT = { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" };
+  const esc = s => String(s).replace(/[&<>"']/g, c => ENT[c]);
+
+  const LANGS = {};
+  const ALIAS = {
+    js: "javascript", mjs: "javascript", cjs: "javascript", node: "javascript",
+    jsx: "javascript", ts: "typescript", tsx: "typescript",
+    py: "python", python3: "python",
+    sh: "bash", shell: "bash", zsh: "bash", console: "bash", terminal: "bash", bash: "bash",
+    yml: "yaml", md: "markdown", mdown: "markdown",
+    htm: "html", xml: "html", svg: "html", vue: "html",
+    scss: "css", sass: "css", less: "css",
+    "c++": "cpp", cc: "cpp", h: "cpp", hpp: "cpp", cs: "csharp", "c#": "csharp",
+    golang: "go", rb: "ruby", kt: "kotlin", rs: "rust",
+    jsonc: "json", json5: "json",
+    txt: "", text: "", plaintext: "", plain: "", none: ""
+  };
+
+  function def(names, rules) { names.split(" ").forEach(function (n) { LANGS[n] = rules; }); }
+  function alias(lang) {
+    const l = String(lang || "").toLowerCase();
+    if (Object.prototype.hasOwnProperty.call(ALIAS, l)) return ALIAS[l];
+    return l;
+  }
+
+  const kwRe = words => new RegExp("(?:" + words.trim().split(/\s+/).join("|") + ")\\b", "y");
+
+  /* ---- javascript / typescript ---- */
+  const JS_KW = "abstract as async await break case catch class const continue debugger declare default delete do else enum export extends finally for from function get if implements import in infer instanceof interface is keyof let namespace new of package private protected public readonly return satisfies set static super switch this throw try type typeof var void while with yield";
+  const JS_LIT = "true false null undefined NaN Infinity globalThis";
+  const JS = [
+    { t: "com", re: /\/\/[^\n]*/y },
+    { t: "com", re: /\/\*[\s\S]*?\*\//y },
+    { t: "str", re: /`(?:[^`\\]|\\[\s\S])*`/y },
+    { t: "str", re: /"(?:[^"\\\n]|\\[\s\S])*"/y },
+    { t: "str", re: /'(?:[^'\\\n]|\\[\s\S])*'/y },
+    { t: "num", re: /0[xXbBoO][0-9a-fA-F_]+n?|\d[\d_]*(?:\.[\d_]*)?(?:[eE][+-]?\d+)?n?/y },
+    { t: "kw", re: kwRe(JS_KW) },
+    { t: "kw", re: kwRe(JS_LIT) },
+    { t: "typ", re: /(?:string|number|boolean|any|unknown|never|object|symbol|bigint|Promise|Array|Record|Map|Set|Date|RegExp|Error|JSON|Math|Object|String|Number|Boolean|Symbol)\b/y },
+    { t: "typ", re: /[A-Z][A-Za-z0-9_$]*/y },
+    { t: "fn", re: /[A-Za-z_$][\w$]*(?=\s*\()/y },
+    { t: "var", re: /[A-Za-z_$][\w$]*/y },
+    { t: "op", re: /=>|\.{3}|[?]{2}|[-+*/%&|^!~<>=?:]+/y },
+    { t: "pun", re: /[{}()[\];,.]/y },
+    { t: "", re: /\s+/y }
+  ];
+  def("javascript typescript", JS);
+
+  /* ---- json ---- */
+  def("json", [
+    { t: "com", re: /\/\/[^\n]*|\/\*[\s\S]*?\*\//y },
+    { t: "atr", re: /"(?:[^"\\]|\\[\s\S])*"(?=\s*:)/y },
+    { t: "str", re: /"(?:[^"\\]|\\[\s\S])*"/y },
+    { t: "kw", re: /\b(?:true|false|null)\b/y },
+    { t: "num", re: /-?\d+(?:\.\d+)?(?:[eE][+-]?\d+)?/y },
+    { t: "pun", re: /[{}[\]:,]/y },
+    { t: "", re: /\s+/y }
+  ]);
+
+  /* ---- python ---- */
+  const PY_KW = "and as assert async await break class continue def del elif else except finally for from global if import in is lambda match nonlocal not or pass raise return try while with yield";
+  def("python", [
+    { t: "com", re: /#[^\n]*/y },
+    { t: "str", re: /[rRbBuUfF]{0,2}(?:"""[\s\S]*?"""|'''[\s\S]*?''')/y },
+    { t: "str", re: /[rRbBuUfF]{0,2}(?:"(?:[^"\\\n]|\\[\s\S])*"|'(?:[^'\\\n]|\\[\s\S])*')/y },
+    { t: "typ", re: /@[\w.]+/y },
+    { t: "num", re: /0[xXbBoO][0-9a-fA-F_]+|\d[\d_]*(?:\.[\d_]*)?(?:[eE][+-]?\d+)?j?/y },
+    { t: "kw", re: kwRe(PY_KW) },
+    { t: "kw", re: /(?:True|False|None|self|cls)\b/y },
+    { t: "typ", re: /(?:int|str|float|bool|list|dict|set|tuple|bytes|object|type|Optional|Union|Any|Callable|Iterable|Sequence|List|Dict)\b/y },
+    { t: "fn", re: /[A-Za-z_]\w*(?=\s*\()/y },
+    { t: "var", re: /[A-Za-z_]\w*/y },
+    { t: "op", re: /[-+*/%&|^!~<>=:@]+/y },
+    { t: "pun", re: /[{}()[\];,.]/y },
+    { t: "", re: /\s+/y }
+  ]);
+
+  /* ---- bash ---- */
+  const SH_KW = "if then elif else fi for while until do done case esac function select in return break continue exit local export readonly declare source alias unset trap shift eval exec set";
+  const SH_CMD = "echo printf cd ls cp mv rm mkdir rmdir touch cat head tail grep sed awk find sort uniq wc chmod chown ln ps kill curl wget git npm npx pnpm yarn node python python3 pip pip3 docker kubectl make sudo apt apt-get brew ssh scp tar zip unzip which env date sleep test";
+  def("bash", [
+    { t: "com", re: /#[^\n]*/y },
+    { t: "str", re: /"(?:[^"\\]|\\[\s\S])*"/y },
+    { t: "str", re: /'[^']*'/y },
+    { t: "var", re: /\$(?:\{[^}]*\}|[\w@#?*!$-]+)/y },
+    { t: "kw", re: kwRe(SH_KW) },
+    { t: "fn", re: kwRe(SH_CMD) },
+    { t: "atr", re: /--?[A-Za-z][\w-]*/y },
+    { t: "num", re: /\b\d+\b/y },
+    { t: "op", re: /[|&;<>]+|[=]/y },
+    { t: "var", re: /[\w./-]+/y },
+    { t: "pun", re: /[{}()[\],]/y },
+    { t: "", re: /\s+/y }
+  ]);
+
+  /* ---- html / xml ---- */
+  def("html", [
+    { t: "", re: /\s+/y },
+    { t: "com", re: /<!--[\s\S]*?-->/y },
+    { t: "meta", re: /<!(?:DOCTYPE|doctype)[^>]*>/y },
+    { t: "tag", re: /<\/?[A-Za-z][\w:.-]*/y },
+    { t: "str", re: /"[^"]*"|'[^']*'/y },
+    { t: "atr", re: /[A-Za-z_:@#][\w:.@#-]*(?=\s*=)/y },
+    { t: "num", re: /&[#\w]+;/y },
+    { t: "pun", re: /\/?>/y },
+    { t: "op", re: /=/y },
+    { t: "", re: /[^<&="']+/y }
+  ]);
+
+  /* ---- css ---- */
+  def("css", [
+    { t: "com", re: /\/\*[\s\S]*?\*\//y },
+    { t: "kw", re: /@[\w-]+/y },
+    { t: "str", re: /"[^"]*"|'[^']*'/y },
+    { t: "num", re: /#[0-9a-fA-F]{3,8}\b/y },
+    { t: "atr", re: /[-A-Za-z]+(?=\s*:)/y },
+    { t: "typ", re: /[.#&][\w-]+|::?[a-z-]+/y },
+    { t: "fn", re: /[\w-]+(?=\()/y },
+    { t: "num", re: /-?\d*\.?\d+(?:px|em|rem|%|vh|vw|vmin|vmax|s|ms|deg|fr|ch|ex|pt|cm|mm)?/y },
+    { t: "var", re: /--[\w-]+/y },
+    { t: "pun", re: /[{}();:,]/y },
+    { t: "", re: /\s+/y }
+  ]);
+
+  /* ---- yaml ---- */
+  def("yaml", [
+    { t: "com", re: /#[^\n]*/y },
+    { t: "meta", re: /^---$|^\.\.\.$/my },
+    { t: "atr", re: /[\w.$/-]+(?=\s*:)/y },
+    { t: "str", re: /"(?:[^"\\]|\\[\s\S])*"|'[^']*'/y },
+    { t: "kw", re: /\b(?:true|false|null|yes|no|on|off|~)\b/y },
+    { t: "num", re: /-?\d+(?:\.\d+)?/y },
+    { t: "op", re: /[-?|>&*!]/y },
+    { t: "pun", re: /[:,{}[\]]/y },
+    { t: "", re: /\s+/y }
+  ]);
+
+  /* ---- sql ---- */
+  const SQL_KW = "select from where insert into values update set delete create table alter drop add column primary key foreign references index view join inner left right outer full on group by order having limit offset union all distinct as and or not null is in between like exists case when then else end asc desc count sum avg min max cast begin commit rollback transaction with returning default constraint unique check";
+  def("sql", [
+    { t: "com", re: /--[^\n]*|\/\*[\s\S]*?\*\//y },
+    { t: "str", re: /'(?:[^']|'')*'|"[^"]*"/y },
+    { t: "kw", re: new RegExp("(?:" + SQL_KW.split(/\s+/).join("|") + ")\\b", "yi") },
+    { t: "typ", re: /\b(?:int|integer|bigint|smallint|serial|varchar|char|text|boolean|bool|date|timestamp|timestamptz|numeric|decimal|real|double|json|jsonb|uuid|blob)\b/yi },
+    { t: "num", re: /\b\d+(?:\.\d+)?\b/y },
+    { t: "fn", re: /[A-Za-z_]\w*(?=\s*\()/y },
+    { t: "var", re: /[A-Za-z_]\w*/y },
+    { t: "op", re: /[-+*/%<>=!|]+/y },
+    { t: "pun", re: /[();,.]/y },
+    { t: "", re: /\s+/y }
+  ]);
+
+  /* ---- markdown ---- */
+  def("markdown", [
+    { t: "com", re: /^ {0,3}>[^\n]*/my },
+    { t: "kw", re: /^ {0,3}#{1,6}[^\n]*/my },
+    { t: "str", re: /```[\s\S]*?```|`[^`\n]+`/y },
+    { t: "typ", re: /!?\[[^\]\n]*\]\([^)\n]*\)/y },
+    { t: "num", re: /^ {0,3}(?:[-*+]|\d+[.)])\s/my },
+    { t: "fn", re: /\*\*[^*\n]+\*\*|__[^_\n]+__/y },
+    { t: "atr", re: /\*[^*\n]+\*|_[^_\n]+_/y },
+    { t: "op", re: /^ {0,3}(?:---+|\*\*\*+|___+)$/my },
+    { t: "", re: /[^\n`*_[!#>-]+/y }
+  ]);
+
+  /* ---- ini / toml ---- */
+  def("ini toml", [
+    { t: "com", re: /[#;][^\n]*/y },
+    { t: "typ", re: /^\s*\[[^\]\n]*\]/my },
+    { t: "atr", re: /[\w.$-]+(?=\s*=)/y },
+    { t: "str", re: /"(?:[^"\\]|\\[\s\S])*"|'[^']*'/y },
+    { t: "kw", re: /\b(?:true|false)\b/y },
+    { t: "num", re: /-?\d+(?:\.\d+)?/y },
+    { t: "op", re: /=/y },
+    { t: "", re: /\s+/y }
+  ]);
+
+  /* ---- generic c-like ---- */
+  const CLIKE_KW = "abstract alias and as asm assert async auto await base bool break by byte case catch chan char class const constexpr continue crate default defer delegate delete do double dyn else elseif end enum event explicit extends extern fallthrough false final finally float fn for foreach friend func function go goto if impl implements import in inline instanceof int interface internal is lambda let lock long loop map match mod module move mut namespace native new nil nullptr null object operator or override package params partial private protected pub public pure range readonly ref register return sealed select self short signed sizeof static string struct super switch sync synchronized template this throw throws trait transient true try type typedef typeof union unsafe unsigned use using var virtual void volatile when where while with yield";
+  def("clike java c cpp csharp go rust php ruby kotlin swift dart scala groovy objectivec perl lua r julia haskell elixir erlang", [
+    { t: "com", re: /\/\/[^\n]*|#[^\n]*|--\[\[[\s\S]*?\]\]|--[^\n]*/y },
+    { t: "com", re: /\/\*[\s\S]*?\*\/|"""[\s\S]*?"""/y },
+    { t: "meta", re: /^\s*#\s*\w+/my },
+    { t: "str", re: /"(?:[^"\\\n]|\\[\s\S])*"|'(?:[^'\\\n]|\\[\s\S])*'|`(?:[^`\\]|\\[\s\S])*`/y },
+    { t: "num", re: /0[xXbB][0-9a-fA-F_]+|\d[\d_]*(?:\.[\d_]*)?(?:[eEfFlLuU][+-]?\d*)?/y },
+    { t: "kw", re: new RegExp("(?:" + CLIKE_KW.split(/\s+/).filter(w => /^[a-z]+$/.test(w)).join("|") + ")\\b", "y") },
+    { t: "typ", re: /[A-Z][A-Za-z0-9_]*/y },
+    { t: "fn", re: /[A-Za-z_]\w*(?=\s*[(<])/y },
+    { t: "var", re: /[$@%]?[A-Za-z_]\w*/y },
+    { t: "op", re: /[-+*/%&|^!~<>=?:]+/y },
+    { t: "pun", re: /[{}()[\];,.]/y },
+    { t: "", re: /\s+/y }
+  ]);
+
+  const CLIKE_MAP = { java: 1, c: 1, cpp: 1, csharp: 1, go: 1, rust: 1, php: 1, ruby: 1, kotlin: 1, swift: 1, dart: 1, scala: 1, groovy: 1, objectivec: 1, perl: 1, lua: 1, r: 1, julia: 1, haskell: 1, elixir: 1, erlang: 1 };
+
+  function run(code, rules) {
+    let out = "", pos = 0;
+    const n = code.length;
+    let guard = 0;
+    while (pos < n && guard++ < 500000) {
+      let hit = null;
+      for (let i = 0; i < rules.length; i++) {
+        const rule = rules[i];
+        rule.re.lastIndex = pos;
+        const m = rule.re.exec(code);
+        if (m && m[0].length > 0 && m.index === pos) { hit = { t: rule.t, s: m[0] }; break; }
+      }
+      if (!hit) { out += esc(code.charAt(pos)); pos++; continue; }
+      out += hit.t ? '<span class="t-' + hit.t + '">' + esc(hit.s) + "</span>" : esc(hit.s);
+      pos += hit.s.length;
+    }
+    if (pos < n) out += esc(code.slice(pos));
+    return out;
+  }
+
+  function diff(code) {
+    return code.split("\n").map(function (l) {
+      const c = l.charAt(0);
+      if (c === "+" && l.slice(0, 3) !== "+++") return '<span class="t-add">' + esc(l) + "</span>";
+      if (c === "-" && l.slice(0, 3) !== "---") return '<span class="t-del">' + esc(l) + "</span>";
+      if (c === "@") return '<span class="t-fn">' + esc(l) + "</span>";
+      if (l.slice(0, 3) === "+++" || l.slice(0, 3) === "---" || l.slice(0, 5) === "diff " || l.slice(0, 6) === "index ")
+        return '<span class="t-meta">' + esc(l) + "</span>";
+      return esc(l);
+    }).join("\n");
+  }
+
+  function render(code, lang) {
+    const l = alias(lang);
+    if (!l) return esc(code);
+    if (l === "diff" || l === "patch") return diff(code);
+    const rules = LANGS[l] || (CLIKE_MAP[l] ? LANGS.clike : null);
+    if (!rules) return esc(code);
+    try { return run(code, rules); } catch (e) { return esc(code); }
+  }
+
+  return { render: render, alias: alias, known: l => !!(LANGS[alias(l)] || CLIKE_MAP[alias(l)]) };
+})();
+
+/* ==========================================================================
+   3 · APPLICATION
+   ========================================================================== */
+const $ = s => document.querySelector(s);
+const $$ = s => Array.prototype.slice.call(document.querySelectorAll(s));
+
+const app       = $("#app");
+const ed        = $("#editor");
+const preview   = $("#preview");
+const viewScroll= $("#viewScroll");
+const tocEl     = $("#toc");
+const docListEl = $("#docList");
+const titleEl   = $("#docTitle");
+const saveEl    = $("#saveState");
+const progress  = $("#progress");
+const gutter    = $("#gutter");
+const work      = $("#work");
+const findBar   = $("#find");
+const findInput = $("#findInput");
+const findCount = $("#findCount");
+const toastEl   = $("#toast");
+const toastMsg  = $("#toastMsg");
+const dropEl    = $("#drop");
+const filePick  = $("#filePick");
+
+const KEY = { docs: "recto.v2.docs", active: "recto.v2.active", prefs: "recto.v2.prefs" };
+const DEFAULTS = {
+  theme: "system", face: "serif", size: "18.5", measure: "70ch",
+  smart: false, breaks: false, sync: true, mode: "split",
+  sidebar: "on", split: 50, tab: "toc", printBg: "paper"
+};
+
+let prefs = Object.assign({}, DEFAULTS);
+let docs = [];
+let activeId = null;
+let toc = [];
+let headings = [];
+let lineMap = [];
+let totalLines = 1;
+let marks = [];
+let markIndex = -1;
+let syncLock = 0;
+let saveTimer = null, renderTimer = null;
+
+/* ------------------------------------------------------------- storage */
+function readJSON(k, fallback) {
+  try { const v = localStorage.getItem(k); return v ? JSON.parse(v) : fallback; }
+  catch (e) { return fallback; }
+}
+function writeJSON(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} }
+function savePrefs() { writeJSON(KEY.prefs, prefs); }
+function saveDocs() { writeJSON(KEY.docs, docs); writeJSON(KEY.active, activeId); }
+function uid() { return "d" + Date.now().toString(36) + Math.random().toString(36).slice(2, 7); }
+function activeDoc() { return docs.filter(d => d.id === activeId)[0] || null; }
+
+/* ------------------------------------------------------------- toast */
+let toastTimer = null;
+function toast(msg) {
+  toastMsg.textContent = msg;
+  toastEl.classList.add("is-on");
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => toastEl.classList.remove("is-on"), 2000);
+}
+
+/* ------------------------------------------------------------- render */
+const EMPTY_HTML = '<div class="blank"><h1>Boş sayfa</h1><p>Soldaki alana yazmaya başla.</p></div>';
+
+function render() {
+  const src = ed.value;
+  let res;
+  try {
+    res = MD.parse(src, { smart: prefs.smart, breaks: prefs.breaks });
+  } catch (e) {
+    res = { html: '<div class="blank"><h1>Çözümleme hatası</h1><p>' + MD.escape(String(e && e.message || e)) + "</p></div>", toc: [] };
+  }
+  preview.innerHTML = src.trim() ? res.html : EMPTY_HTML;
+  toc = res.toc || [];
+  headings = $$("#preview [id]").filter(el => /^H[1-6]$/.test(el.tagName));
+  lineMap = $$("#preview [data-line]");
+  totalLines = src.split("\n").length;
+  invalidateTops();
+  Array.prototype.slice.call(preview.querySelectorAll("img")).forEach(function (img) {
+    if (!img.complete) img.addEventListener("load", invalidateTops, { once: true });
+  });
+  buildToc();
+  updateStats(src);
+  if (findBar.classList.contains("is-open") && findInput.value) runFind(findInput.value, true);
+  updateProgress();
+  spy();
+}
+function scheduleRender() {
+  clearTimeout(renderTimer);
+  renderTimer = setTimeout(render, 90);
+}
+
+function updateStats(src) {
+  const stripped = src
+    .replace(/```[\s\S]*?```/g, " ")
+    .replace(/`[^`]*`/g, " ")
+    .replace(/!?\[([^\]]*)\]\([^)]*\)/g, "$1")
+    .replace(/[#>*_~\-|]/g, " ");
+  const words = stripped.split(/\s+/).filter(w => /[\p{L}\p{N}]/u.test(w)).length;
+  const chars = src.length;
+  const mins = Math.max(words ? 1 : 0, Math.round(words / 200));
+  const nf = new Intl.NumberFormat("tr-TR");
+  $("#stWords").textContent = nf.format(words);
+  $("#stTime").textContent = mins + " dk";
+  $("#sbWords").textContent = nf.format(words);
+  $("#sbChars").textContent = nf.format(chars);
+  $("#sbLines").textContent = nf.format(totalLines);
+  $("#sbHeads").textContent = nf.format(toc.length);
+}
+
+function buildToc() {
+  if (!toc.length) {
+    tocEl.innerHTML = '<div class="panel__empty"><span data-ico="heading"></span>Belgede başlık yok.<br>Başlık eklediğinde anahat burada belirir.</div>';
+    paintIcons(tocEl);
+    return;
+  }
+  const min = toc.reduce((a, t) => Math.min(a, t.level), 6);
+  tocEl.innerHTML = toc.map(t =>
+    '<a href="#' + t.id + '" data-l="' + Math.min(6, t.level - min + 1) + '" data-id="' + t.id + '">' + t.text + "</a>"
+  ).join("");
+}
+
+/* ------------------------------------------------------------- scroll spy */
+function topOf(el) {
+  return el.getBoundingClientRect().top - viewScroll.getBoundingClientRect().top + viewScroll.scrollTop;
+}
+let lineTops = null, headTops = null;
+function invalidateTops() { lineTops = null; headTops = null; }
+function ensureTops() {
+  if (lineTops) return;
+  const base = viewScroll.getBoundingClientRect().top - viewScroll.scrollTop;
+  lineTops = lineMap.map(el => el.getBoundingClientRect().top - base);
+  headTops = headings.map(el => el.getBoundingClientRect().top - base);
+}
+let spyRaf = 0;
+function spy() {
+  cancelAnimationFrame(spyRaf);
+  spyRaf = requestAnimationFrame(function () {
+    if (!headings.length) return;
+    ensureTops();
+    const y = viewScroll.scrollTop + 90;
+    let cur = headings[0];
+    for (let i = 0; i < headings.length; i++) {
+      if (headTops[i] <= y) cur = headings[i]; else break;
+    }
+    const id = cur.id;
+    $$("#toc a").forEach(a => a.classList.toggle("is-active", a.getAttribute("data-id") === id));
+    const on = tocEl.querySelector("a.is-active");
+    const box = document.querySelector(".sidebar__body");
+    if (on && box) {
+      const top = on.offsetTop;
+      if (top < box.scrollTop) box.scrollTop = Math.max(0, top - 40);
+      else if (top > box.scrollTop + box.clientHeight - 40) box.scrollTop = top - box.clientHeight + 60;
+    }
+  });
+}
+function updateProgress() {
+  const max = viewScroll.scrollHeight - viewScroll.clientHeight;
+  progress.style.width = (max > 8 ? (viewScroll.scrollTop / max) * 100 : 0) + "%";
+}
+
+/* ------------------------------------------------------------- sync scroll */
+function previewOffsetForLine(line) {
+  if (!lineMap.length) return 0;
+  ensureTops();
+  let lo = -1;
+  for (let i = 0; i < lineMap.length; i++) {
+    if (+lineMap[i].getAttribute("data-line") <= line) lo = i; else break;
+  }
+  if (lo === -1) return 0;
+  const a = lineMap[lo], aLine = +a.getAttribute("data-line"), aTop = lineTops[lo];
+  const b = lineMap[lo + 1];
+  if (!b) {
+    const span = Math.max(1, totalLines - aLine);
+    return aTop + a.offsetHeight * Math.max(0, Math.min(1, (line - aLine) / span));
+  }
+  const bLine = +b.getAttribute("data-line"), bTop = lineTops[lo + 1];
+  const t = bLine > aLine ? (line - aLine) / (bLine - aLine) : 0;
+  return aTop + (bTop - aTop) * Math.max(0, Math.min(1, t));
+}
+function lineForPreviewOffset(y) {
+  if (!lineMap.length) return 0;
+  ensureTops();
+  let lo = -1;
+  for (let i = 0; i < lineMap.length; i++) { if (lineTops[i] <= y) lo = i; else break; }
+  if (lo === -1) return 0;
+  const a = lineMap[lo], aLine = +a.getAttribute("data-line"), aTop = lineTops[lo];
+  const b = lineMap[lo + 1];
+  if (!b) return aLine;
+  const bLine = +b.getAttribute("data-line"), bTop = lineTops[lo + 1];
+  const t = bTop > aTop ? (y - aTop) / (bTop - aTop) : 0;
+  return aLine + (bLine - aLine) * Math.max(0, Math.min(1, t));
+}
+function syncFromEditor() {
+  if (!prefs.sync || prefs.mode !== "split" || syncLock) return;
+  syncLock = 1;
+  const max = Math.max(1, ed.scrollHeight - ed.clientHeight);
+  const frac = ed.scrollTop / max;
+  const line = frac * totalLines;
+  const target = previewOffsetForLine(line) - viewScroll.clientHeight * frac * 0.25;
+  viewScroll.scrollTop = Math.max(0, target);
+  requestAnimationFrame(() => { syncLock = 0; });
+}
+function syncFromPreview() {
+  if (!prefs.sync || prefs.mode !== "split" || syncLock) return;
+  syncLock = 1;
+  const line = lineForPreviewOffset(viewScroll.scrollTop + 8);
+  const max = Math.max(1, ed.scrollHeight - ed.clientHeight);
+  ed.scrollTop = Math.max(0, Math.min(max, (line / Math.max(1, totalLines)) * max));
+  requestAnimationFrame(() => { syncLock = 0; });
+}
+
+/* ------------------------------------------------------------- editor io */
+function onInput() {
+  scheduleRender();
+  markDirty();
+  updateCursor();
+}
+function markDirty() {
+  saveEl.textContent = "kaydediliyor";
+  saveEl.classList.add("is-on");
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(function () {
+    const d = activeDoc();
+    if (d) { d.body = ed.value; d.updated = Date.now(); saveDocs(); renderDocs(); }
+    saveEl.textContent = "kaydedildi";
+    setTimeout(() => saveEl.classList.remove("is-on"), 1200);
+  }, 550);
+}
+function updateCursor() {
+  const upto = ed.value.slice(0, ed.selectionStart);
+  const ln = upto.split("\n");
+  $("#cursorPos").textContent = ln.length + " : " + (ln[ln.length - 1].length + 1);
+}
+function setEditorValue(text, caret) {
+  ed.value = text;
+  if (caret != null) ed.setSelectionRange(caret, caret);
+  render();
+  markDirty();
+}
+function replaceRange(start, end, text, selStart, selEnd) {
+  ed.focus();
+  ed.setSelectionRange(start, end);
+  let ok = false;
+  try { ok = document.execCommand("insertText", false, text); } catch (e) { ok = false; }
+  if (!ok) {
+    ed.value = ed.value.slice(0, start) + text + ed.value.slice(end);
+  }
+  if (selStart != null) ed.setSelectionRange(selStart, selEnd == null ? selStart : selEnd);
+  onInput();
+}
+function surround(before, after, placeholder) {
+  const s = ed.selectionStart, e = ed.selectionEnd, v = ed.value;
+  const sel = v.slice(s, e);
+  if (sel && v.slice(s - before.length, s) === before && v.slice(e, e + after.length) === after) {
+    const start = s - before.length, end = e + after.length;
+    replaceRange(start, end, sel, start, start + sel.length);
+    return;
+  }
+  if (!sel && placeholder) {
+    replaceRange(s, e, before + placeholder + after, s + before.length, s + before.length + placeholder.length);
+    return;
+  }
+  replaceRange(s, e, before + sel + after, s + before.length, s + before.length + sel.length);
+}
+function lineBounds() {
+  const v = ed.value;
+  let s = v.lastIndexOf("\n", ed.selectionStart - 1) + 1;
+  let e = v.indexOf("\n", ed.selectionEnd);
+  if (e === -1) e = v.length;
+  return { s: s, e: e, text: v.slice(s, e) };
+}
+function prefixLines(fn) {
+  const b = lineBounds();
+  const out = b.text.split("\n").map(fn).join("\n");
+  replaceRange(b.s, b.e, out, b.s, b.s + out.length);
+}
+const CMD = {
+  bold:   () => surround("**", "**", "kalın metin"),
+  italic: () => surround("*", "*", "italik metin"),
+  strike: () => surround("~~", "~~", "üstü çizili"),
+  code:   () => surround("`", "`", "kod"),
+  link:   function () {
+    const s = ed.selectionStart, e = ed.selectionEnd, sel = ed.value.slice(s, e);
+    if (/^(https?:\/\/|www\.|mailto:)/i.test(sel)) {
+      replaceRange(s, e, "[" + "bağlantı" + "](" + sel + ")", s + 1, s + 9);
+    } else if (sel) {
+      replaceRange(s, e, "[" + sel + "](https://)", s + sel.length + 3, s + sel.length + 11);
+    } else {
+      replaceRange(s, e, "[metin](https://)", s + 1, s + 6);
+    }
+  },
+  image:  () => surround("![", "](https://)", "açıklama"),
+  fence:  function () {
+    const s = ed.selectionStart, e = ed.selectionEnd, sel = ed.value.slice(s, e);
+    const nl = s > 0 && ed.value.charAt(s - 1) !== "\n" ? "\n" : "";
+    const text = nl + "```\n" + (sel || "") + "\n```\n";
+    replaceRange(s, e, text, s + nl.length + 3, s + nl.length + 3);
+  },
+  quote:  () => prefixLines(l => (/^\s*>\s?/.test(l) ? l.replace(/^(\s*)>\s?/, "$1") : "> " + l)),
+  ul:     () => prefixLines(l => (/^\s*[-+*]\s/.test(l) ? l.replace(/^(\s*)[-+*]\s+/, "$1") : "- " + l)),
+  ol:     function () {
+    let n = 0;
+    prefixLines(l => (/^\s*\d+[.)]\s/.test(l) ? l.replace(/^(\s*)\d+[.)]\s+/, "$1") : (++n) + ". " + l));
+  },
+  task:   () => prefixLines(l => (/^\s*[-+*]\s+\[[ xX]\]\s/.test(l)
+            ? l.replace(/^(\s*)[-+*]\s+\[[ xX]\]\s+/, "$1")
+            : "- [ ] " + l.replace(/^\s*[-+*]\s+/, ""))),
+  h:      function () {
+    const b = lineBounds();
+    const m = /^(#{1,6})\s/.exec(b.text);
+    const level = m ? (m[1].length >= 6 ? 0 : m[1].length + 1) : 1;
+    const body = b.text.replace(/^#{1,6}\s+/, "");
+    const out = (level ? "#".repeat(level) + " " : "") + body;
+    replaceRange(b.s, b.e, out, b.s + out.length);
+  },
+  table:  function () {
+    const s = ed.selectionStart;
+    const nl = s > 0 && ed.value.charAt(s - 1) !== "\n" ? "\n\n" : "";
+    const t = nl + "| Sütun | Sütun | Sütun |\n| --- | :---: | ---: |\n|  |  |  |\n";
+    replaceRange(s, ed.selectionEnd, t, s + nl.length + 2, s + nl.length + 7);
+  },
+  hr:     function () {
+    const s = ed.selectionStart;
+    const nl = s > 0 && ed.value.charAt(s - 1) !== "\n" ? "\n" : "";
+    const t = nl + "\n---\n\n";
+    replaceRange(s, ed.selectionEnd, t, s + t.length);
+  }
+};
+
+/* list continuation + tab handling */
+ed.addEventListener("keydown", function (e) {
+  const mod = e.ctrlKey || e.metaKey;
+  if (e.key === "Tab" && !mod) {
+    e.preventDefault();
+    const s = ed.selectionStart, en = ed.selectionEnd;
+    if (s !== en || e.shiftKey) {
+      const b = lineBounds();
+      const out = b.text.split("\n").map(l => e.shiftKey ? l.replace(/^ {1,2}/, "") : "  " + l).join("\n");
+      replaceRange(b.s, b.e, out, b.s, b.s + out.length);
+    } else {
+      replaceRange(s, en, "  ", s + 2);
+    }
+    return;
+  }
+  if (e.key === "Enter" && !e.shiftKey && !mod) {
+    const v = ed.value, s = ed.selectionStart;
+    const ls = v.lastIndexOf("\n", s - 1) + 1;
+    const line = v.slice(ls, s);
+    const m = /^(\s*)([-+*]|\d{1,9}[.)])(\s+)(\[[ xX]\]\s+)?/.exec(line);
+    if (m) {
+      const rest = line.slice(m[0].length);
+      if (!rest.trim()) {
+        e.preventDefault();
+        replaceRange(ls, s, "", ls);
+        return;
+      }
+      e.preventDefault();
+      let marker = m[2];
+      if (/\d/.test(marker)) marker = (parseInt(marker, 10) + 1) + marker.slice(-1);
+      const ins = "\n" + m[1] + marker + m[3] + (m[4] ? "[ ] " : "");
+      replaceRange(s, ed.selectionEnd, ins, s + ins.length);
+      return;
+    }
+    const q = /^(\s*>\s?)/.exec(line);
+    if (q && line.replace(/^\s*>\s?/, "").trim()) {
+      e.preventDefault();
+      const ins = "\n" + q[1];
+      replaceRange(s, ed.selectionEnd, ins, s + ins.length);
+      return;
+    }
+  }
+  if (mod && !e.altKey) {
+    const k = e.key.toLowerCase();
+    const map = { b: "bold", i: "italic", k: "link", e: "code" };
+    if (map[k] && !e.shiftKey) { e.preventDefault(); CMD[map[k]](); return; }
+    if (k === "k" && e.shiftKey) { e.preventDefault(); CMD.fence(); return; }
+  }
+});
+ed.addEventListener("input", onInput);
+ed.addEventListener("click", updateCursor);
+ed.addEventListener("keyup", updateCursor);
+ed.addEventListener("scroll", syncFromEditor);
+viewScroll.addEventListener("scroll", function () {
+  updateProgress(); spy(); syncFromPreview();
+}, { passive: true });
+
+/* ------------------------------------------------------------- view modes */
+const MODE_LABEL = { edit: "Yazma", split: "İkili görünüm", read: "Okuma" };
+const MODE_INDEX = { edit: 0, split: 1, read: 2 };
+function setMode(m, silent) {
+  if (!MODE_LABEL[m]) m = "split";
+  prefs.mode = m;
+  app.setAttribute("data-mode", m);
+  $("#viewModes").style.setProperty("--seg", MODE_INDEX[m]);
+  $$("#viewModes button").forEach(b => b.setAttribute("aria-selected", String(b.getAttribute("data-mode") === m)));
+  $("#sbMode").textContent = MODE_LABEL[m];
+  if (!silent) savePrefs();
+  requestAnimationFrame(function () { invalidateTops(); updateProgress(); spy(); });
+}
+$("#viewModes").addEventListener("click", function (e) {
+  const b = e.target.closest("button[data-mode]");
+  if (b) setMode(b.getAttribute("data-mode"));
+});
+
+/* ------------------------------------------------------------- sidebar */
+function setSidebar(v, silent) {
+  prefs.sidebar = v;
+  app.setAttribute("data-sidebar", v);
+  $("#btnSidebar").classList.toggle("is-active", v === "on");
+  if (!silent) savePrefs();
+}
+$("#btnSidebar").addEventListener("click", () => setSidebar(prefs.sidebar === "on" ? "off" : "on"));
+document.querySelector(".shell").addEventListener("click", function (e) {
+  if (e.target === this && window.innerWidth <= 820 && app.getAttribute("data-sidebar") === "on") setSidebar("off");
+});
+$$(".sidebar__tabs .tab").forEach(function (t) {
+  t.addEventListener("click", function () {
+    const which = t.getAttribute("data-tab");
+    prefs.tab = which; savePrefs();
+    $$(".sidebar__tabs .tab").forEach(x => x.setAttribute("aria-selected", String(x === t)));
+    $("#panelToc").classList.toggle("is-on", which === "toc");
+    $("#panelDocs").classList.toggle("is-on", which === "docs");
+  });
+});
+tocEl.addEventListener("click", function (e) {
+  const a = e.target.closest("a[data-id]");
+  if (!a) return;
+  e.preventDefault();
+  const el = document.getElementById(a.getAttribute("data-id"));
+  if (!el) return;
+  if (prefs.mode === "edit") setMode("split");
+  if (window.innerWidth <= 820) setSidebar("off");
+  viewScroll.scrollTo({ top: Math.max(0, topOf(el) - 24), behavior: "smooth" });
+});
+
+/* ------------------------------------------------------------- documents */
+function ago(ts) {
+  const d = Date.now() - ts, m = Math.round(d / 60000);
+  if (m < 1) return "az önce";
+  if (m < 60) return m + " dk önce";
+  const h = Math.round(m / 60);
+  if (h < 24) return h + " sa önce";
+  const g = Math.round(h / 24);
+  if (g < 7) return g + " gün önce";
+  try { return new Date(ts).toLocaleDateString("tr-TR", { day: "numeric", month: "short" }); }
+  catch (e) { return ""; }
+}
+function renderDocs() {
+  if (!docs.length) { docListEl.innerHTML = '<div class="panel__empty">Henüz belge yok.</div>'; return; }
+  const sorted = docs.slice().sort((a, b) => b.updated - a.updated);
+  docListEl.innerHTML = sorted.map(function (d) {
+    const words = (d.body || "").split(/\s+/).filter(Boolean).length;
+    return '<div class="doc' + (d.id === activeId ? " is-active" : "") + '" data-id="' + d.id + '" tabindex="0">' +
+      '<span class="doc__dot"></span><div class="doc__main">' +
+      '<div class="doc__name">' + MD.escape(d.name || "Başlıksız") + "</div>" +
+      '<div class="doc__meta">' + ago(d.updated) + " · " + words + " kelime</div></div>" +
+      '<button class="doc__del" data-del="' + d.id + '" title="Sil" aria-label="Sil"></button></div>';
+  }).join("");
+  $$("#docList .doc__del").forEach(b => b.insertAdjacentHTML("afterbegin", ICONS.trash));
+}
+function openDoc(id) {
+  const d = docs.filter(x => x.id === id)[0];
+  if (!d) return;
+  activeId = id;
+  ed.value = d.body || "";
+  titleEl.value = d.name || "Başlıksız";
+  saveDocs();
+  renderDocs();
+  render();
+  try { ed.setSelectionRange(0, 0); } catch (e) {}
+  ed.scrollTop = 0; viewScroll.scrollTop = 0;
+  clearMarks();
+  updateCursor();
+}
+function newDoc(name, body, quiet) {
+  const d = { id: uid(), name: name || "Başlıksız", body: body || "", created: Date.now(), updated: Date.now() };
+  docs.push(d);
+  openDoc(d.id);
+  if (!quiet) toast("Yeni belge oluşturuldu");
+  return d;
+}
+function deleteDoc(id) {
+  const d = docs.filter(x => x.id === id)[0];
+  if (!d) return;
+  if (!window.confirm('"' + (d.name || "Başlıksız") + '" silinsin mi? Bu işlem geri alınamaz.')) return;
+  docs = docs.filter(x => x.id !== id);
+  if (activeId === id) {
+    if (docs.length) openDoc(docs.slice().sort((a, b) => b.updated - a.updated)[0].id);
+    else newDoc("Başlıksız", "", true);
+  } else { saveDocs(); renderDocs(); }
+  toast("Belge silindi");
+}
+docListEl.addEventListener("click", function (e) {
+  const del = e.target.closest("[data-del]");
+  if (del) { e.stopPropagation(); deleteDoc(del.getAttribute("data-del")); return; }
+  const row = e.target.closest(".doc[data-id]");
+  if (row) { openDoc(row.getAttribute("data-id")); if (window.innerWidth <= 820) setSidebar("off"); }
+});
+docListEl.addEventListener("keydown", function (e) {
+  const row = e.target.closest(".doc[data-id]");
+  if (row && (e.key === "Enter" || e.key === " ")) { e.preventDefault(); openDoc(row.getAttribute("data-id")); }
+});
+$("#btnNewDoc").addEventListener("click", () => newDoc());
+titleEl.addEventListener("input", function () {
+  const d = activeDoc();
+  if (!d) return;
+  d.name = titleEl.value.trim() || "Başlıksız";
+  d.updated = Date.now();
+  markDirty();
+});
+titleEl.addEventListener("keydown", e => { if (e.key === "Enter") { e.preventDefault(); titleEl.blur(); } });
+
+/* ------------------------------------------------------------- theme */
+const THEME_ORDER = ["system", "light", "dark"];
+const THEME_ICON = { system: "auto", light: "sun", dark: "moon" };
+const THEME_LABEL = { system: "Sistem teması", light: "Açık tema", dark: "Koyu tema" };
+function applyTheme(silent) {
+  document.documentElement.setAttribute("data-theme", prefs.theme);
+  const b = $("#btnTheme");
+  b.innerHTML = ICONS[THEME_ICON[prefs.theme]];
+  b.title = THEME_LABEL[prefs.theme];
+  b.setAttribute("aria-label", THEME_LABEL[prefs.theme]);
+  if (!silent) savePrefs();
+}
+$("#btnTheme").addEventListener("click", function () {
+  prefs.theme = THEME_ORDER[(THEME_ORDER.indexOf(prefs.theme) + 1) % 3];
+  applyTheme();
+  toast(THEME_LABEL[prefs.theme]);
+});
+
+/* ------------------------------------------------------------- typography */
+function applyType(silent) {
+  preview.setAttribute("data-face", prefs.face);
+  document.documentElement.style.setProperty("--read-size", prefs.size + "px");
+  document.documentElement.style.setProperty("--measure", prefs.measure);
+  setChips("#optFace", prefs.face);
+  setChips("#optSize", prefs.size);
+  setChips("#optMeasure", prefs.measure);
+  invalidateTops();
+  $("#optSmart").setAttribute("aria-pressed", String(!!prefs.smart));
+  $("#optBreaks").setAttribute("aria-pressed", String(!!prefs.breaks));
+  if (!silent) savePrefs();
+}
+function setChips(sel, val) {
+  $$(sel + " .chip").forEach(c => c.setAttribute("aria-pressed", String(c.getAttribute("data-v") === String(val))));
+}
+$("#optFace").addEventListener("click", e => { const c = e.target.closest(".chip"); if (c) { prefs.face = c.getAttribute("data-v"); applyType(); } });
+$("#optSize").addEventListener("click", e => { const c = e.target.closest(".chip"); if (c) { prefs.size = c.getAttribute("data-v"); applyType(); } });
+$("#optMeasure").addEventListener("click", e => { const c = e.target.closest(".chip"); if (c) { prefs.measure = c.getAttribute("data-v"); applyType(); } });
+$("#optSmart").addEventListener("click", () => { prefs.smart = !prefs.smart; applyType(); render(); });
+$("#optBreaks").addEventListener("click", () => { prefs.breaks = !prefs.breaks; applyType(); render(); });
+
+/* ------------------------------------------------------------- popovers */
+function closePops(except) {
+  $$(".pop").forEach(p => { if (p !== except) p.classList.remove("is-open"); });
+}
+function bindPop(btnSel, popSel) {
+  const btn = $(btnSel), pop = $(popSel);
+  btn.addEventListener("click", function (e) {
+    e.stopPropagation();
+    const open = pop.classList.contains("is-open");
+    closePops();
+    if (!open) pop.classList.add("is-open");
+    btn.classList.toggle("is-active", !open);
+  });
+  pop.addEventListener("click", e => e.stopPropagation());
+}
+bindPop("#btnType", "#popType");
+bindPop("#btnMore", "#popMore");
+document.addEventListener("click", function () {
+  closePops();
+  $("#btnType").classList.remove("is-active");
+  $("#btnMore").classList.remove("is-active");
+});
+
+/* ------------------------------------------------------------- find */
+const FOLD = { "İ": "i", "I": "i", "ı": "i", "Ç": "ç", "Ğ": "ğ", "Ö": "ö", "Ş": "ş", "Ü": "ü" };
+function fold(s) {
+  let o = "";
+  for (let i = 0; i < s.length; i++) {
+    const c = s.charAt(i);
+    if (FOLD[c]) { o += FOLD[c]; continue; }
+    const lc = c.toLowerCase();
+    o += lc.length === 1 ? lc : c;
+  }
+  return o;
+}
+function clearMarks() {
+  marks.forEach(function (m) {
+    if (!m.parentNode) return;
+    const p = m.parentNode;
+    while (m.firstChild) p.insertBefore(m.firstChild, m);
+    p.removeChild(m);
+    p.normalize();
+  });
+  marks = [];
+  markIndex = -1;
+}
+function runFind(q, keepIndex) {
+  clearMarks();
+  if (!q) { findCount.textContent = "0/0"; return; }
+  const needle = fold(q);
+  const walker = document.createTreeWalker(preview, NodeFilter.SHOW_TEXT, null);
+  const nodes = [];
+  while (walker.nextNode()) {
+    const n = walker.currentNode;
+    if (n.nodeValue && n.nodeValue.trim()) nodes.push(n);
+  }
+  for (let i = 0; i < nodes.length; i++) {
+    let node = nodes[i];
+    const hay = fold(node.nodeValue);
+    const hits = [];
+    let from = 0, at;
+    while ((at = hay.indexOf(needle, from)) !== -1) { hits.push(at); from = at + needle.length; }
+    if (!hits.length) continue;
+    let consumed = 0;
+    for (let k = 0; k < hits.length; k++) {
+      const rel = hits[k] - consumed;
+      const mid = node.splitText(rel);
+      const after = mid.splitText(needle.length);
+      const mk = document.createElement("mark");
+      mk.className = "hit";
+      mid.parentNode.replaceChild(mk, mid);
+      mk.appendChild(mid);
+      marks.push(mk);
+      consumed = hits[k] + needle.length;
+      node = after;
+    }
+  }
+  if (!marks.length) { findCount.textContent = "0/0"; return; }
+  gotoMark(keepIndex && markIndex >= 0 ? Math.min(markIndex, marks.length - 1) : 0, !!keepIndex);
+}
+function gotoMark(i, noScroll) {
+  if (!marks.length) return;
+  marks.forEach(m => m.classList.remove("cur"));
+  markIndex = (i + marks.length) % marks.length;
+  const m = marks[markIndex];
+  m.classList.add("cur");
+  findCount.textContent = (markIndex + 1) + "/" + marks.length;
+  if (!noScroll) {
+    const y = topOf(m) - viewScroll.clientHeight / 2;
+    viewScroll.scrollTo({ top: Math.max(0, y), behavior: "smooth" });
+  }
+}
+function openFind() {
+  if (prefs.mode === "edit") setMode("split");
+  findBar.classList.add("is-open");
+  $("#btnFind").classList.add("is-active");
+  findInput.focus();
+  findInput.select();
+  if (findInput.value) runFind(findInput.value);
+}
+function closeFind() {
+  findBar.classList.remove("is-open");
+  $("#btnFind").classList.remove("is-active");
+  clearMarks();
+  findCount.textContent = "0/0";
+}
+$("#btnFind").addEventListener("click", () => findBar.classList.contains("is-open") ? closeFind() : openFind());
+$("#findClose").addEventListener("click", closeFind);
+$("#findNext").addEventListener("click", () => gotoMark(markIndex + 1));
+$("#findPrev").addEventListener("click", () => gotoMark(markIndex - 1));
+let findTimer = null;
+findInput.addEventListener("input", function () {
+  clearTimeout(findTimer);
+  findTimer = setTimeout(() => runFind(findInput.value), 140);
+});
+findInput.addEventListener("keydown", function (e) {
+  if (e.key === "Enter") { e.preventDefault(); gotoMark(markIndex + (e.shiftKey ? -1 : 1)); }
+  if (e.key === "Escape") { e.preventDefault(); closeFind(); ed.focus(); }
+});
+
+/* ------------------------------------------------------------- preview io */
+preview.addEventListener("click", function (e) {
+  const copy = e.target.closest("[data-copy]");
+  if (copy) {
+    const block = copy.closest(".code");
+    const code = block ? block.querySelector("code") : null;
+    if (code) {
+      clip(code.textContent);
+      const span = copy.querySelector("span");
+      const old = span.textContent;
+      span.textContent = "kopyalandı";
+      copy.classList.add("ok");
+      setTimeout(function () { span.textContent = old; copy.classList.remove("ok"); }, 1400);
+    }
+    return;
+  }
+  const a = e.target.closest('a[href^="#"]');
+  if (a) {
+    const id = decodeURIComponent(a.getAttribute("href").slice(1));
+    const el = document.getElementById(id);
+    if (el) { e.preventDefault(); viewScroll.scrollTo({ top: Math.max(0, topOf(el) - 24), behavior: "smooth" }); }
+  }
+});
+preview.addEventListener("change", function (e) {
+  const box = e.target.closest("input[data-task]");
+  if (!box) return;
+  toggleTask(parseInt(box.getAttribute("data-task"), 10), box.checked);
+});
+function toggleTask(idx, checked) {
+  const lines = ed.value.split("\n");
+  const re = /^(\s*(?:[-+*]|\d{1,9}[.)])\s+)\[([ xX])\]/;
+  let n = 0, inFence = false;
+  for (let i = 0; i < lines.length; i++) {
+    if (/^ {0,3}(?:```|~~~)/.test(lines[i])) { inFence = !inFence; continue; }
+    if (inFence) continue;
+    if (re.test(lines[i])) {
+      if (n === idx) {
+        lines[i] = lines[i].replace(re, (m, p) => p + "[" + (checked ? "x" : " ") + "]");
+        break;
+      }
+      n++;
+    }
+  }
+  const caret = ed.selectionStart;
+  ed.value = lines.join("\n");
+  ed.setSelectionRange(caret, caret);
+  render();
+  markDirty();
+}
+function clip(text) {
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(text).then(() => toast("Panoya kopyalandı"), fallbackClip.bind(null, text));
+  } else fallbackClip(text);
+}
+function fallbackClip(text) {
+  const ta = document.createElement("textarea");
+  ta.value = text;
+  ta.style.cssText = "position:fixed;opacity:0;left:-9999px";
+  document.body.appendChild(ta);
+  ta.select();
+  try { document.execCommand("copy"); toast("Panoya kopyalandı"); } catch (e) { toast("Kopyalanamadı"); }
+  document.body.removeChild(ta);
+}
+
+/* ------------------------------------------------------------- export */
+function safeName(s) {
+  return String(s || "belge").replace(/[\\/:*?"<>|]+/g, "-").replace(/\s+/g, " ").trim().slice(0, 80) || "belge";
+}
+function download(name, text, type) {
+  try {
+    const blob = new Blob([text], { type: (type || "text/plain") + ";charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url; a.download = name;
+    document.body.appendChild(a);
+    a.click();
+    setTimeout(function () { URL.revokeObjectURL(url); a.parentNode && a.parentNode.removeChild(a); }, 500);
+    toast(name + " indirildi");
+  } catch (e) { toast("İndirme başarısız"); }
+}
+const EXPORT_CSS = [
+  "body{overflow:auto;background:var(--paper);color:var(--ink-2)}",
+  "body::before{display:none}",
+  ".md{padding:clamp(32px,6vw,76px) clamp(20px,5vw,40px) 120px}",
+  ".md .anchor{display:none}"
+].join("\n");
+function buildStandalone() {
+  const hadFind = findBar.classList.contains("is-open");
+  if (hadFind) clearMarks();
+  const clone = preview.cloneNode(true);
+  Array.prototype.slice.call(clone.querySelectorAll(".code__copy, .anchor")).forEach(n => n.parentNode.removeChild(n));
+  Array.prototype.slice.call(clone.querySelectorAll('input[type="checkbox"]')).forEach(function (b) {
+    b.setAttribute("disabled", "disabled"); b.removeAttribute("data-task");
+  });
+  if (hadFind && findInput.value) runFind(findInput.value, true);
+  const css = $$("style").map(s => s.textContent).join("\n");
+  const name = (activeDoc() || {}).name || "Belge";
+  const theme = prefs.theme;
+  return "<!doctype html>\n<html lang=\"tr\" data-theme=\"" + theme + "\">\n<head>\n" +
+    '<meta charset="utf-8">\n<meta name="viewport" content="width=device-width, initial-scale=1">\n' +
+    '<meta name="color-scheme" content="light dark">\n<title>' + MD.escape(name) + "</title>\n" +
+    '<link rel="preconnect" href="https://fonts.googleapis.com">\n' +
+    '<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>\n' +
+    '<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital,wght@0,400;0,500;0,600;1,400&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&family=Newsreader:ital,opsz,wght@0,6..72,300;0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400&display=swap" rel="stylesheet">\n' +
+    "<style>\n" + css + "\n" + EXPORT_CSS + "\n</style>\n</head>\n<body>\n" +
+    clone.outerHTML + "\n</body>\n</html>\n";
+}
+/* --- PDF zemini: kâğıt (beyaz) / açık / koyu --- */
+const PRINT_BG = { paper: "--pg-paper", light: "--pg-light", dark: "--pg-dark" };
+function applyPrintBg(silent) {
+  if (!PRINT_BG[prefs.printBg]) prefs.printBg = "paper";
+  setChips("#optPrintBg", prefs.printBg);
+  if (!silent) savePrefs();
+}
+$("#optPrintBg").addEventListener("click", function (e) {
+  const c = e.target.closest(".chip");
+  if (c) { prefs.printBg = c.getAttribute("data-v"); applyPrintBg(); }
+});
+
+/* --- yazdırma yerleşimi --- */
+const printSheet = document.createElement("style");
+document.head.appendChild(printSheet);
+let printPrevMode = null, printPrevTheme = null;
+
+/* Sayfa kırılma planı.
+   Bir blok kâğıda sığıyorsa bütün halde kalsın (break-inside:avoid); sığmıyorsa
+   bölünmesine izin verilsin — yoksa Chrome onu bir sonraki sayfaya iter, geride
+   yarım boş bir sayfa bırakır ve sonra zaten böler.
+   Ölçüm ekranda yapıldığı için önce kâğıt geometrisi taklit edilir. */
+const PRINT_MARGIN_MM = 20;                  /* @page üst/alt boşluğu */
+const SHORTEST_PAPER_MM = 279.4;             /* Letter — A4'ten kısa olan */
+const PX_PER_MM = 96 / 25.4;
+const KEEP_WHOLE = ".table-wrap,.code,blockquote,.callout,figure,dl,.footnotes";
+
+function planPageBreaks() {
+  const root = document.documentElement;
+  root.setAttribute("data-measuring", "");
+  // güvenlik payı: hücre dolgusu, kenarlık gibi px sabitleri ölçekle birebir
+  // ölçüşmediği için sığma eşiğini biraz aşağıda tutuyoruz
+  const usable = (SHORTEST_PAPER_MM - 2 * PRINT_MARGIN_MM) * PX_PER_MM * 0.88;
+  const nodes = preview.querySelectorAll(KEEP_WHOLE);
+  for (let i = 0; i < nodes.length; i++) {
+    const el = nodes[i];
+    const fits = el.getBoundingClientRect().height <= usable;
+    el.style.breakInside = fits ? "avoid" : "auto";
+    el.setAttribute("data-planned", fits ? "whole" : "split");
+  }
+  root.removeAttribute("data-measuring");     // boyanmadan geri alınır
+  return nodes.length;
+}
+function clearPageBreaks() {
+  const nodes = preview.querySelectorAll("[data-planned]");
+  for (let i = 0; i < nodes.length; i++) {
+    nodes[i].style.breakInside = "";
+    nodes[i].removeAttribute("data-planned");
+  }
+}
+
+function enterPrintLayout() {
+  if (printPrevMode !== null) return;
+  printPrevMode = prefs.mode;
+  printPrevTheme = document.documentElement.getAttribute("data-theme");
+  closePops();
+  if (prefs.mode !== "read") setMode("read", true);
+  const bg = prefs.printBg in PRINT_BG ? prefs.printBg : "paper";
+  const root = document.documentElement;
+  root.setAttribute("data-print", bg);
+  root.setAttribute("data-theme", bg === "dark" ? "dark" : "light");
+  // @page özel değişken kabul etmiyor; değeri stil sayfasından okuyup basıyoruz
+  const paper = getComputedStyle(root).getPropertyValue(PRINT_BG[bg]).trim() || "#fff";
+  printSheet.textContent = "@media print{@page{margin:" + PRINT_MARGIN_MM + "mm 16mm;background:" + paper + "}}";
+  planPageBreaks();
+}
+function leavePrintLayout() {
+  if (printPrevMode === null) return;
+  const prevMode = printPrevMode, prevTheme = printPrevTheme;
+  printPrevMode = null; printPrevTheme = null;
+  printSheet.textContent = "";
+  clearPageBreaks();
+  document.documentElement.removeAttribute("data-print");
+  if (prevTheme !== null) document.documentElement.setAttribute("data-theme", prevTheme);
+  setMode(prevMode, true);
+}
+function doPrint() {
+  enterPrintLayout();
+  requestAnimationFrame(function () {
+    requestAnimationFrame(function () {
+      window.print();
+      // Safari fires no afterprint reliably; restore defensively too.
+      setTimeout(leavePrintLayout, 300);
+    });
+  });
+}
+window.addEventListener("beforeprint", enterPrintLayout);
+window.addEventListener("afterprint", leavePrintLayout);
+$("#miMd").addEventListener("click", () => download(safeName((activeDoc() || {}).name) + ".md", ed.value, "text/markdown"));
+$("#miHtml").addEventListener("click", () => download(safeName((activeDoc() || {}).name) + ".html", buildStandalone(), "text/html"));
+$("#miPrint").addEventListener("click", doPrint);
+$("#miCopyMd").addEventListener("click", () => clip(ed.value));
+$("#miCopyHtml").addEventListener("click", function () {
+  const clone = preview.cloneNode(true);
+  Array.prototype.slice.call(clone.querySelectorAll(".code__copy, .anchor")).forEach(n => n.parentNode.removeChild(n));
+  clip(clone.innerHTML);
+});
+$("#miNew").addEventListener("click", () => newDoc());
+$("#miOpen").addEventListener("click", () => filePick.click());
+$("#miSample").addEventListener("click", function () {
+  newDoc("Recto — örnek belge", sampleText(), true);
+  toast("Örnek belge yüklendi");
+});
+$("#miClear").addEventListener("click", function () {
+  if (!ed.value.trim() || window.confirm("Belgenin içeriği tamamen silinsin mi?")) {
+    ed.value = "";
+    render(); markDirty(); ed.focus();
+  }
+});
+$("#miKeys").addEventListener("click", () => openModal("#keysModal"));
+
+/* ------------------------------------------------------------- files */
+function sampleText() {
+  const el = document.getElementById("sampleDoc");
+  return el ? el.textContent.replace(/^\n/, "") : "# Merhaba\n";
+}
+function loadFiles(list) {
+  const files = Array.prototype.slice.call(list).filter(function (f) {
+    return /\.(md|markdown|mdown|mkd|mdx|txt|text)$/i.test(f.name) || /^text\//.test(f.type || "");
+  });
+  if (!files.length) { toast("Desteklenmeyen dosya türü"); return; }
+  let done = 0, lastId = null;
+  files.forEach(function (f) {
+    const r = new FileReader();
+    r.onload = function () {
+      const d = newDoc(f.name.replace(/\.[^.]+$/, ""), String(r.result || ""), true);
+      lastId = d.id;
+      if (++done === files.length) {
+        openDoc(lastId);
+        toast(files.length === 1 ? f.name + " açıldı" : files.length + " dosya açıldı");
+      }
+    };
+    r.onerror = function () { toast("Dosya okunamadı"); };
+    r.readAsText(f);
+  });
+}
+filePick.addEventListener("change", function () { loadFiles(filePick.files); filePick.value = ""; });
+
+let dragDepth = 0;
+window.addEventListener("dragenter", function (e) {
+  if (!e.dataTransfer || Array.prototype.indexOf.call(e.dataTransfer.types || [], "Files") === -1) return;
+  dragDepth++; dropEl.classList.add("is-on");
+});
+window.addEventListener("dragover", e => e.preventDefault());
+window.addEventListener("dragleave", function () { if (--dragDepth <= 0) { dragDepth = 0; dropEl.classList.remove("is-on"); } });
+window.addEventListener("drop", function (e) {
+  e.preventDefault();
+  dragDepth = 0; dropEl.classList.remove("is-on");
+  if (e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files.length) loadFiles(e.dataTransfer.files);
+});
+
+/* ------------------------------------------------------------- modal */
+function openModal(sel) { closePops(); $(sel).classList.add("is-open"); }
+function closeModal(sel) { $(sel).classList.remove("is-open"); }
+$$(".scrim").forEach(function (s) {
+  s.addEventListener("click", function (e) {
+    if (e.target === s || e.target.closest("[data-close]")) s.classList.remove("is-open");
+  });
+});
+const KEYMAP = [
+  ["Belge", [
+    ["Yeni belge", ["Ctrl", "N"]],
+    ["Dosya aç", ["Ctrl", "O"]],
+    ["Markdown indir", ["Ctrl", "S"]],
+    ["Yazdır / PDF", ["Ctrl", "P"]],
+    ["Belgede bul", ["Ctrl", "F"]]
+  ]],
+  ["Görünüm", [
+    ["Yazma modu", ["Ctrl", "1"]],
+    ["İkili görünüm", ["Ctrl", "2"]],
+    ["Okuma modu", ["Ctrl", "3"]],
+    ["Kenar çubuğu", ["Ctrl", "\\"]],
+    ["Tema değiştir", ["Ctrl", "Shift", "L"]],
+    ["Kısayollar", ["?"]]
+  ]],
+  ["Biçimlendirme", [
+    ["Kalın", ["Ctrl", "B"]],
+    ["İtalik", ["Ctrl", "I"]],
+    ["Bağlantı", ["Ctrl", "K"]],
+    ["Satır içi kod", ["Ctrl", "E"]],
+    ["Kod bloğu", ["Ctrl", "Shift", "K"]],
+    ["Girinti ekle / kaldır", ["Tab", "Shift+Tab"]]
+  ]]
+];
+function buildKeys() {
+  const g = $("#keysGrid");
+  g.innerHTML = KEYMAP.map(function (grp) {
+    return '<div class="keys__grp label">' + grp[0] + "</div>" + grp[1].map(function (row) {
+      return '<div class="key-row">' + row[0] + "<span>" + row[1].map(k => "<kbd>" + k + "</kbd>").join("") + "</span></div>";
+    }).join("");
+  }).join("");
+}
+
+/* ------------------------------------------------------------- splitter */
+(function () {
+  let dragging = false;
+  function move(e) {
+    if (!dragging) return;
+    const r = work.getBoundingClientRect();
+    const x = (e.touches ? e.touches[0].clientX : e.clientX) - r.left;
+    let pct = (x / r.width) * 100;
+    pct = Math.max(22, Math.min(78, pct));
+    work.style.setProperty("--split", pct + "%");
+    invalidateTops();
+    prefs.split = Math.round(pct);
+  }
+  function stop() {
+    if (!dragging) return;
+    dragging = false;
+    document.body.classList.remove("is-resizing");
+    gutter.classList.remove("is-drag");
+    savePrefs();
+  }
+  function start(e) {
+    dragging = true;
+    document.body.classList.add("is-resizing");
+    gutter.classList.add("is-drag");
+    e.preventDefault();
+  }
+  gutter.addEventListener("mousedown", start);
+  gutter.addEventListener("touchstart", start, { passive: false });
+  window.addEventListener("mousemove", move);
+  window.addEventListener("touchmove", move, { passive: true });
+  window.addEventListener("mouseup", stop);
+  window.addEventListener("touchend", stop);
+  gutter.addEventListener("dblclick", function () {
+    work.style.setProperty("--split", "50%"); prefs.split = 50; savePrefs();
+  });
+  gutter.addEventListener("keydown", function (e) {
+    if (e.key !== "ArrowLeft" && e.key !== "ArrowRight") return;
+    e.preventDefault();
+    prefs.split = Math.max(22, Math.min(78, (prefs.split || 50) + (e.key === "ArrowLeft" ? -2 : 2)));
+    work.style.setProperty("--split", prefs.split + "%");
+    savePrefs();
+  });
+})();
+
+/* ------------------------------------------------------------- toolbar */
+$("#toolbar").addEventListener("click", function (e) {
+  const b = e.target.closest("[data-cmd]");
+  if (!b) return;
+  const fn = CMD[b.getAttribute("data-cmd")];
+  if (fn) fn();
+});
+
+/* ------------------------------------------------------------- global keys */
+document.addEventListener("keydown", function (e) {
+  const mod = e.ctrlKey || e.metaKey;
+  const inField = /^(INPUT|TEXTAREA)$/.test(document.activeElement.tagName);
+
+  if (e.key === "Escape") {
+    if (findBar.classList.contains("is-open")) { closeFind(); return; }
+    const openScrim = $(".scrim.is-open");
+    if (openScrim) { openScrim.classList.remove("is-open"); return; }
+    closePops();
+    return;
+  }
+  if (!mod && !inField && (e.key === "?" || (e.key === "/" && e.shiftKey))) {
+    e.preventDefault(); openModal("#keysModal"); return;
+  }
+  if (!mod) return;
+
+  const k = e.key.toLowerCase();
+  if (k === "f") { e.preventDefault(); openFind(); return; }
+  if (k === "s") { e.preventDefault(); download(safeName((activeDoc() || {}).name) + ".md", ed.value, "text/markdown"); return; }
+  if (k === "p") { e.preventDefault(); doPrint(); return; }
+  if (k === "o") { e.preventDefault(); filePick.click(); return; }
+  if (k === "n" && !e.shiftKey) { e.preventDefault(); newDoc(); return; }
+  if (k === "\\") { e.preventDefault(); setSidebar(prefs.sidebar === "on" ? "off" : "on"); return; }
+  if (k === "l" && e.shiftKey) {
+    e.preventDefault();
+    prefs.theme = THEME_ORDER[(THEME_ORDER.indexOf(prefs.theme) + 1) % 3];
+    applyTheme(); toast(THEME_LABEL[prefs.theme]); return;
+  }
+  if (e.key === "1" || e.key === "2" || e.key === "3") {
+    e.preventDefault();
+    setMode(["edit", "split", "read"][parseInt(e.key, 10) - 1]);
+    return;
+  }
+});
+$("#btnSync").addEventListener("click", function () {
+  prefs.sync = !prefs.sync;
+  $("#btnSync").classList.toggle("is-on", prefs.sync);
+  savePrefs();
+  toast(prefs.sync ? "Eşzamanlı kaydırma açık" : "Eşzamanlı kaydırma kapalı");
+});
+window.addEventListener("resize", function () { invalidateTops(); updateProgress(); spy(); });
+window.addEventListener("beforeunload", function () {
+  const d = activeDoc();
+  if (d) { d.body = ed.value; d.updated = Date.now(); saveDocs(); }
+});
+
+/* ------------------------------------------------------------- init */
+function init() {
+  paintIcons(document);
+  const stored = readJSON(KEY.prefs, {}) || {};
+  Object.keys(DEFAULTS).forEach(function (k) {
+    if (Object.prototype.hasOwnProperty.call(stored, k)) prefs[k] = stored[k];
+  });
+  docs = (readJSON(KEY.docs, []) || []).filter(d => d && d.id);
+  activeId = readJSON(KEY.active, null);
+
+  applyTheme(true);
+  applyType(true);
+  applyPrintBg(true);
+  setMode(prefs.mode, true);
+  if (window.innerWidth <= 820) {
+    app.setAttribute("data-sidebar", "off");
+    $("#btnSidebar").classList.remove("is-active");
+  } else {
+    setSidebar(prefs.sidebar, true);
+  }
+  work.style.setProperty("--split", (prefs.split || 50) + "%");
+  $("#btnSync").classList.toggle("is-on", !!prefs.sync);
+
+  const tab = prefs.tab === "docs" ? "docs" : "toc";
+  $$(".sidebar__tabs .tab").forEach(t => t.setAttribute("aria-selected", String(t.getAttribute("data-tab") === tab)));
+  $("#panelToc").classList.toggle("is-on", tab === "toc");
+  $("#panelDocs").classList.toggle("is-on", tab === "docs");
+
+  buildKeys();
+
+  if (!docs.length) {
+    newDoc("Recto — başlangıç", sampleText(), true);
+  } else if (!docs.filter(d => d.id === activeId).length) {
+    openDoc(docs.slice().sort((a, b) => b.updated - a.updated)[0].id);
+  } else {
+    openDoc(activeId);
+  }
+  renderDocs();
+  saveEl.classList.remove("is-on");
+  if (prefs.mode !== "read") setTimeout(() => ed.focus(), 60);
+}
+init();
+
+})();
+</script>
+</body>
+</html>
