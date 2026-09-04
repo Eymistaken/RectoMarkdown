@@ -2224,7 +2224,7 @@ let lineMap = [];
 let totalLines = 1;
 let marks = [];
 let markIndex = -1;
-let syncLock = 0;
+let syncSrc = null, syncTimer = 0;
 let saveTimer = null, renderTimer = null;
 
 /* ------------------------------------------------------------- storage */
@@ -2379,23 +2379,40 @@ function lineForPreviewOffset(y) {
   const t = bTop > aTop ? (y - aTop) / (bTop - aTop) : 0;
   return aLine + (bLine - aLine) * Math.max(0, Math.min(1, t));
 }
+/* Kaydırma senkronu yön bazlı kilitlenir: kaynak panel hangisiyse karşı
+   panelin ürettiği yankı scroll olayları kısa süre yok sayılır. Tek karelik
+   kilit, yumuşak kaydırmanın kareler boyunca sürdürdüğü olaylara yetmiyor
+   ve iki panel birbirini geri çekiyordu. */
+function claimSync(src) {
+  if (syncSrc && syncSrc !== src) return false;
+  syncSrc = src;
+  clearTimeout(syncTimer);
+  syncTimer = setTimeout(function () { syncSrc = null; }, 120);
+  return true;
+}
+/* CSS'teki scroll-behavior:smooth programatik atamayı da animasyona çevirip
+   önizlemenin gecikmeli/takılarak akmasına yol açar; senkronda anlık yaz. */
+function setScrollTopNow(el, top) {
+  const prev = el.style.scrollBehavior;
+  el.style.scrollBehavior = "auto";
+  el.scrollTop = top;
+  el.style.scrollBehavior = prev;
+}
 function syncFromEditor() {
-  if (!prefs.sync || prefs.mode !== "split" || syncLock) return;
-  syncLock = 1;
+  if (!prefs.sync || prefs.mode !== "split") return;
+  if (!claimSync("ed")) return;
   const max = Math.max(1, ed.scrollHeight - ed.clientHeight);
   const frac = ed.scrollTop / max;
   const line = frac * totalLines;
   const target = previewOffsetForLine(line) - viewScroll.clientHeight * frac * 0.25;
-  viewScroll.scrollTop = Math.max(0, target);
-  requestAnimationFrame(() => { syncLock = 0; });
+  setScrollTopNow(viewScroll, Math.max(0, target));
 }
 function syncFromPreview() {
-  if (!prefs.sync || prefs.mode !== "split" || syncLock) return;
-  syncLock = 1;
+  if (!prefs.sync || prefs.mode !== "split") return;
+  if (!claimSync("view")) return;
   const line = lineForPreviewOffset(viewScroll.scrollTop + 8);
   const max = Math.max(1, ed.scrollHeight - ed.clientHeight);
-  ed.scrollTop = Math.max(0, Math.min(max, (line / Math.max(1, totalLines)) * max));
-  requestAnimationFrame(() => { syncLock = 0; });
+  setScrollTopNow(ed, Math.max(0, Math.min(max, (line / Math.max(1, totalLines)) * max)));
 }
 
 /* ------------------------------------------------------------- editor io */
@@ -2568,7 +2585,7 @@ ed.addEventListener("keydown", function (e) {
 ed.addEventListener("input", onInput);
 ed.addEventListener("click", updateCursor);
 ed.addEventListener("keyup", updateCursor);
-ed.addEventListener("scroll", syncFromEditor);
+ed.addEventListener("scroll", syncFromEditor, { passive: true });
 viewScroll.addEventListener("scroll", function () {
   updateProgress(); spy(); syncFromPreview();
 }, { passive: true });
@@ -2657,7 +2674,7 @@ function openDoc(id) {
   renderDocs();
   render();
   try { ed.setSelectionRange(0, 0); } catch (e) {}
-  ed.scrollTop = 0; viewScroll.scrollTop = 0;
+  ed.scrollTop = 0; setScrollTopNow(viewScroll, 0);
   clearMarks();
   updateCursor();
 }
